@@ -1,0 +1,35 @@
+@mixin border-radius($radius: 0px) {      // Префиксы для:
+  -webkit-border-radius: $radius;    // Chrome и Safari
+     -moz-border-radius: $radius;    // Firefox
+      -ms-border-radius: $radius;    // Internet Explorer
+       -o-border-radius: $radius;    // Opera
+          border-radius: $radius;    // Стандартный CSS
+}
+
+@mixin transition($transition: all .3s) {
+  -webkit-transition: $transition;
+   -khtml-transition: $transition;
+     -moz-transition: $transition;
+      -ms-transition: $transition;
+       -o-transition: $transition;
+          transition: $transition;
+}
+
+@mixin opacity($opacity: 1) {
+  -webkit-opacity: $opacity;
+     -moz-opacity: $opacity;
+          opacity: $opacity;
+}
+
+@mixin transform($transform: translateX(-50%)) {
+  -webkit-transform: $transform;
+  -moz-transform: $transform;
+  -ms-transform: $transform;
+  -o-transform: $transform;
+  transform: $transform;
+}
+
+@mixin display-flex {
+  -webkit-display: flex;
+          display: flex;
+}

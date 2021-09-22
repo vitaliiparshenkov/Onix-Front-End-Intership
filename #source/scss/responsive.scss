@@ -1,0 +1,224 @@
+/******************** Mixin ********************/
+@import '_mixin';
+
+
+/******************** Media **************************************************************/
+/*****************************************************************************************/
+@media screen and (max-width: 1200px) {
+  .container{
+    max-width: 970px;
+  }
+}
+
+
+@media screen and (max-width: 992px) {
+  .container{
+    max-width: 750px;
+  }
+
+  .content{
+    header{
+
+      .logo {
+        flex-flow: column-reverse nowrap;
+        align-items: flex-start;
+
+        .logo-left {
+          align-self: flex-start;
+        }
+
+        .logo-right {
+          align-self: stretch;
+          margin-bottom: 20px;
+        }
+      }
+    }
+
+    main{
+      padding: 40px 10px;
+
+      .msg-container{
+        .msg{
+          margin-right: 10px;
+        }
+      }
+    }
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .container{
+    max-width: none;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: start;
+    flex-flow: column nowrap;
+
+    .sidebar{
+      //position: fixed;
+      //top: 0;
+      //left: 0;
+      //right: 0;
+      //z-index: 2;
+      position: relative;
+      flex: auto;
+      @include transition(all .25s ease .3s);
+
+      .stats-menu:not(.show){
+        @include transition(all ease .3s);
+        position: fixed;
+        z-index: 2;
+        right: -100%;
+        width: 100%;
+
+        #stats-s, #menu-s{
+          background-color: #000000;
+        }
+      }
+
+      .stats-menu.show{
+        position: fixed;
+        @include transition(all ease .3s);
+        z-index: 2;
+        right: 0;
+        width: 100%;
+        background-color: #000000;
+      }
+
+      #down{
+        display: block;
+      }
+    }
+
+  }
+}
+
+
+@media screen and (max-width: 576px) {
+  .container{
+    flex-flow: column nowrap;
+    
+    .sidebar{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+
+      #burger-container{
+        display: inline-block;
+        z-index: 1;
+
+        #burger-menu {
+          cursor: pointer;
+          position: relative;
+          z-index: 5;
+
+          .line1, .line2, .line3 {
+            width: 30px;
+            height: 3px;
+            background-color: #ffffff;
+            margin: 6px 0;
+            @include transition(0.3s);
+          }
+
+          &:hover {
+            .line1, .line2, .line3 {
+              background-color: #ffc200;
+            }
+          }
+
+          &.change .line1 {
+            @include transform(rotate(-45deg) translate(-7px, 8px));
+            background-color: #ffc200;
+          }
+
+          &.change .line2 {
+            @include opacity(0);
+          }
+
+          &.change .line3 {
+            @include transform(rotate(45deg) translate(-5px, -5px));
+            background-color: #ffc200;
+          }
+        }
+
+        .navbar{
+          position: fixed;
+          height: 100%;
+          width: 250px;
+          background-color: #000000;
+          margin: 0;
+          padding: 0;
+          top: 90px;
+          right: -100%;
+          visibility: hidden;
+          @include transition(0.3s);
+
+          &.visible{
+            visibility: visible;
+            right: 0;
+          }
+
+          .navbar-item{
+            display: block;
+            padding: 8px 25px;
+            margin: 5px 10px;
+            @include transition(0.3s);
+            cursor: pointer;
+
+            &:hover{
+              color: #ffc200;
+              padding-left: 40px;
+            }
+          }
+
+          .navbar-item.active{
+            color: #ffc200;
+            padding-left: 40px;
+
+            &:hover a{
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+
+    .content{
+      padding-top: 170px;
+
+      header{
+        padding: 20px 20px 0 20px;
+        position: static;
+
+
+        .logo-left{
+          h1{
+            font-size: 23px;
+          }
+        }
+
+        nav{
+          padding-bottom: 15px;
+
+          ul.navbar{
+            display: none;
+          }
+        }
+      }
+
+      main{
+        padding: 40px 10px;
+
+        .msg-container{
+          .msg{
+            margin-right: 10px;
+          }
+        }
+
+      }
+    }
+  }
+}

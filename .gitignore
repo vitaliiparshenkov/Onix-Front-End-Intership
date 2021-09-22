@@ -1,6 +1,11 @@
 /#source/less
+/#source/scss/responsive_new.scss
+/#source/scss/style_new.scss
 /.idea
 /flex
 /font
+/css/responsive_new.css
+/css/style_new.css
 prepros.config
 index_img.html
+index_new.html
