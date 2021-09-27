@@ -29,7 +29,10 @@
   transform: $transform;
 }
 
-@mixin display-flex {
-  -webkit-display: flex;
-          display: flex;
+@mixin box-shadow($box-shadow: 0 3px 5px rgba(57, 63, 72, 0.3)) {
+  -webkit-box-shadow: $box-shadow;
+  -moz-box-shadow: $box-shadow;
+  -ms-box-shadow: $box-shadow;
+  -o-box-shadow: $box-shadow;
+  box-shadow: $box-shadow;
 }
