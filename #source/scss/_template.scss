@@ -1,11 +1,20 @@
-.display-flex {
+//cross-browser-properties
+
+.flex{
   display: -webkit-box;
-  display: -webkit-flex;
+  display: -moz-box;
   display: -ms-flexbox;
+  display: -webkit-flex;
   display: flex;
 }
 
-.flex-row-center-center{
+.font-awesome{
+  font-weight: 900;
+  font-family: 'Font Awesome 5 Free', 'Font Awesome 5 Brands';
+}
+
+.flex-centered-element{
+  @extend .flex;
   justify-content: center;
   align-items: center;
 }

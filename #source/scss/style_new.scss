@@ -1,12 +1,12 @@
-//******************** Reset ********************/
+//******************** Reset **************************/
 @import '_reset';
 
 
-//******************** Mixin ********************/
+//******************** Mixin **************************/
 @import '_mixin';
 
 
-//******************** Template ********************/
+//******************** Template ***********************/
 @import '_template';
 
 
@@ -22,7 +22,7 @@ $white: #ffffff;
 $gray: #eaeaea;
 
 
-//******************** Base style ********************/
+//******************** Base style *********************/
 body{
   font-family: "Helvetica", Arial, sans-serif;
   color: $base_font_color;
@@ -48,7 +48,7 @@ time{
 }
 
 
-//******************** Global style ********************/
+//******************** Global style *******************/
 .wrapper{
   background-color: $bg_global;
 
@@ -60,7 +60,7 @@ time{
 
     //overflow: hidden;
     min-height: 100vh;
-    @extend .display-flex;
+    @extend .flex;
 
     .sidebar{
       background-color: $bg_sidebar;
@@ -85,14 +85,14 @@ time{
 
       aside{
         .projectus_list{
-          @extend .display-flex;
+          @extend .flex;
           justify-content: space-between;
           align-items: center;
           padding: 30px 20px 30px 30px;
           @include transition(all ease .3s);
 
           .projectus{
-            @extend .display-flex;
+            @extend .flex;
             align-items: center;
             @include transition(all .3s);
 
@@ -109,17 +109,37 @@ time{
               text-transform: uppercase;
             }
           }
+
+          .search{
+            display: block;
+            width: 16px;
+            height: 16px;
+
+            &:hover{
+              &::before {
+                color: #ffffff;
+              }
+            }
+
+            &::before{
+              @include transition(all .3s);
+              content: '\f002';
+              color: #acacac;
+              font-size: 16px;
+              @extend .font-awesome;
+            }
+          }
         }
 
         .profile{
-          @extend .display-flex;
+          @extend .flex;
           justify-content: space-between;
           align-items: center;
           padding: 16px 20px 16px 30px;
           background-color: #202020;
 
           .profile_inner{
-            @extend .display-flex;
+            @extend .flex;
             align-items: center;
 
             .logo_sidebar{
@@ -130,7 +150,7 @@ time{
             }
 
             .info{
-              @extend .display-flex;
+              @extend .flex;
               flex-direction: column;
 
 
@@ -178,7 +198,7 @@ time{
         }
 
         .statistic{
-          @extend .display-flex;
+          @extend .flex;
           padding: 25px 20px 30px 30px;
           @include transition(all ease .3s);
           //justify-content: space-between;
@@ -252,16 +272,16 @@ time{
         }
 
         .logo_header{
-          @extend .display-flex;
+          @extend .flex;
           justify-content: space-between;
           align-items: center;
 
           .logo_header_left {
-            @extend .display-flex;
+            @extend .flex;
             align-items: center;
 
             .logo_link {
-              @extend .display-flex;
+              @extend .flex;
               margin-right: 11px;
               color: inherit;
 
@@ -279,15 +299,15 @@ time{
           }
 
           .logo_header_right{
-            @extend .display-flex;
+            @extend .flex;
             align-items: center;
 
             .profile_list{
-              @extend .display-flex;
+              @extend .flex;
               align-items: center;
 
               a{
-                @extend .display-flex;
+                @extend .flex;
                 align-items: center;
                 @include transition(all .3s);
                 &:hover{
@@ -326,6 +346,12 @@ time{
 
               &:hover{
                 color: #000000;
+              }
+
+              &::before{
+                content: '\f086';
+                @extend .font-awesome;
+                font-size: 16px;
               }
             }
           }
@@ -386,7 +412,7 @@ time{
         }
 
         .msg_container{
-          @extend .display-flex;
+          @extend .flex;
           flex-wrap: nowrap;
           margin: 35px 0 0 0;
 
@@ -401,14 +427,27 @@ time{
             line-height: 40px;
             text-align: center;
             margin-right: 20px;
+            @extend .font-awesome;
+          }
+
+          .status_check::before{
+            content: "\f00c";
           }
 
           .status_msg{
             background-color: #FFF8DD;
           }
 
+          .status_msg::before{
+            content: '\f27a';
+          }
+
           .status_download{
             background-color: #E3EFFF;
+          }
+
+          .status_download::before{
+            content: '\f019';
           }
 
           .msg{
@@ -438,18 +477,26 @@ time{
           }
         }
 
-        picture{
-          display: block;
+        .img_box{
           margin: 20px 58px 30px 60px;
 
-          img{
-            @include border-radius(8px);
-            object-fit: cover;
-            object-position: 50%;
+          .img_container{
+            display: inline-block;
+            width: 100px;
+            height: 100px;
             margin-bottom: 10px;
 
             &:not(:last-child){
               margin-right: 10px;
+            }
+
+            img{
+              @include border-radius(8px);
+              //object-fit: cover;
+              //object-position: 50%;
+              width: 100%;
+              height: 100%;
+              background-size: cover;
             }
           }
         }

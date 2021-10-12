@@ -1,3 +1,4 @@
+@charset "UTF-8";
 * {
   padding: 0;
   margin: 0;
@@ -64,13 +65,20 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: inherit;
 }
 
-.display-flex, .wrapper .wrapper_container .content main .msg_container, .wrapper .wrapper_container .content header .logo_header .logo_header_right .profile_list a, .wrapper .wrapper_container .content header .logo_header .logo_header_right .profile_list, .wrapper .wrapper_container .content header .logo_header .logo_header_right, .wrapper .wrapper_container .content header .logo_header .logo_header_left .logo_link, .wrapper .wrapper_container .content header .logo_header .logo_header_left, .wrapper .wrapper_container .content header .logo_header, .wrapper .wrapper_container .sidebar aside .statistic, .wrapper .wrapper_container .sidebar aside .profile .profile_inner .info, .wrapper .wrapper_container .sidebar aside .profile .profile_inner, .wrapper .wrapper_container .sidebar aside .profile, .wrapper .wrapper_container .sidebar aside .projectus_list .projectus, .wrapper .wrapper_container .sidebar aside .projectus_list, .wrapper .wrapper_container {
+.flex, .wrapper .wrapper_container .content main .msg_container, .wrapper .wrapper_container .content header .logo_header .logo_header_right .profile_list a, .wrapper .wrapper_container .content header .logo_header .logo_header_right .profile_list, .wrapper .wrapper_container .content header .logo_header .logo_header_right, .wrapper .wrapper_container .content header .logo_header .logo_header_left .logo_link, .wrapper .wrapper_container .content header .logo_header .logo_header_left, .wrapper .wrapper_container .content header .logo_header, .wrapper .wrapper_container .sidebar aside .statistic, .wrapper .wrapper_container .sidebar aside .profile .profile_inner .info, .wrapper .wrapper_container .sidebar aside .profile .profile_inner, .wrapper .wrapper_container .sidebar aside .profile, .wrapper .wrapper_container .sidebar aside .projectus_list .projectus, .wrapper .wrapper_container .sidebar aside .projectus_list, .wrapper .wrapper_container, .flex-centered-element {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
 }
 
-.flex-row-center-center {
+.font-awesome, .wrapper .wrapper_container .content main .msg_container .status_check,
+.wrapper .wrapper_container .content main .msg_container .status_msg,
+.wrapper .wrapper_container .content main .msg_container .status_download, .wrapper .wrapper_container .content header .logo_header .logo_header_right a.chat::before, .wrapper .wrapper_container .sidebar aside .projectus_list .search::before {
+  font-weight: 900;
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands";
+}
+
+.flex-centered-element {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
@@ -168,6 +176,21 @@ time {
      -moz-columns: #ffffff;
           columns: #ffffff;
   text-transform: uppercase;
+}
+.wrapper .wrapper_container .sidebar aside .projectus_list .search {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.wrapper .wrapper_container .sidebar aside .projectus_list .search:hover::before {
+  color: #ffffff;
+}
+.wrapper .wrapper_container .sidebar aside .projectus_list .search::before {
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  content: "";
+  color: #acacac;
+  font-size: 16px;
 }
 .wrapper .wrapper_container .sidebar aside .profile {
   -webkit-box-pack: justify;
@@ -379,6 +402,10 @@ time {
 .wrapper .wrapper_container .content header .logo_header .logo_header_right a.chat:hover {
   color: #000000;
 }
+.wrapper .wrapper_container .content header .logo_header .logo_header_right a.chat::before {
+  content: "";
+  font-size: 16px;
+}
 .wrapper .wrapper_container .content header .navbar .navbar-item {
   display: inline-block;
   margin: 0 14px;
@@ -450,11 +477,20 @@ time {
   text-align: center;
   margin-right: 20px;
 }
+.wrapper .wrapper_container .content main .msg_container .status_check::before {
+  content: "";
+}
 .wrapper .wrapper_container .content main .msg_container .status_msg {
   background-color: #FFF8DD;
 }
+.wrapper .wrapper_container .content main .msg_container .status_msg::before {
+  content: "";
+}
 .wrapper .wrapper_container .content main .msg_container .status_download {
   background-color: #E3EFFF;
+}
+.wrapper .wrapper_container .content main .msg_container .status_download::before {
+  content: "";
 }
 .wrapper .wrapper_container .content main .msg_container .msg {
   margin-right: 96px;
@@ -480,20 +516,23 @@ time {
   font-size: 15px;
   line-height: 18px;
 }
-.wrapper .wrapper_container .content main picture {
-  display: block;
+.wrapper .wrapper_container .content main .img_box {
   margin: 20px 58px 30px 60px;
 }
-.wrapper .wrapper_container .content main picture img {
-  border-radius: 8px;
-  -o-object-fit: cover;
-     object-fit: cover;
-  -o-object-position: 50%;
-     object-position: 50%;
+.wrapper .wrapper_container .content main .img_box .img_container {
+  display: inline-block;
+  width: 100px;
+  height: 100px;
   margin-bottom: 10px;
 }
-.wrapper .wrapper_container .content main picture img:not(:last-child) {
+.wrapper .wrapper_container .content main .img_box .img_container:not(:last-child) {
   margin-right: 10px;
+}
+.wrapper .wrapper_container .content main .img_box .img_container img {
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
 }
 
 .dots {
