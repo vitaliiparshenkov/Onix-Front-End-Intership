@@ -77,4 +77,31 @@ document.addEventListener('DOMContentLoaded', function(){
     };
 
 
+    /* Change completed tasks count */
+    document.querySelector('.complete p').addEventListener('click', e => {
+        e.preventDefault();
+        if (confirm('Are you sure you want to change the number of tasks?')) {
+            openElem = document.querySelector('.open h2');
+            openValue = Number(openElem.textContent);
+
+            if (openValue > 0) {
+                completeElem = document.querySelector('.complete h2');
+                completeValue = Number(completeElem.textContent);
+                completeElem.textContent = completeValue + 1;
+                openElem.textContent = openValue - 1;
+                alert('Done.\nVery well.\nWe see, what you work!!!');
+            } else {
+                alert('Sorry, but you were carried away by your work and did not see that you don\'t have open projects.');
+            }
+        }
+    });
+
+    /* Change notifications by click to img */
+    document.querySelectorAll('.img_container img').forEach((el, index) => {
+        el.addEventListener('click', e => {
+            e.preventDefault();
+            document.querySelector('.number').textContent = index;
+        });
+    });
+
 });

@@ -50,27 +50,31 @@ time{
 
 //******************** Global style *******************/
 .wrapper{
-  background-color: $bg_global;
+  //background-color: $bg_global;
 
   .wrapper_container{
-    background-color: $bg_sidebar;
-    max-width: 1440px;
-    margin: 0 auto;
-    width: 100%;
+    //background-color: $bg_sidebar;
+    //max-width: 1440px;
+    //margin: 0 auto;
 
     //overflow: hidden;
-    min-height: 100vh;
     @extend .flex;
+    width: 100%;
+    min-height: 100vh;
 
     .sidebar{
-      background-color: $bg_sidebar;
-      flex: 0 1 270px;
-      color: $white;
-      max-width: 270px;
-      align-self: flex-start;
-      position: sticky;
+      position: fixed;
+      width: 100%;
       top: 0;
       z-index: 1;
+      background-color: $bg_sidebar;
+      flex: 0 0 270px;
+      color: $white;
+      max-width: 270px;
+      //align-self: stretch;
+      //position: sticky;
+      min-height: 100vh;
+      overflow: auto;
 
       p{
         font-size: 12px;
@@ -84,6 +88,7 @@ time{
       }
 
       aside{
+
         .projectus_list{
           @extend .flex;
           justify-content: space-between;
@@ -207,6 +212,10 @@ time{
           .open{
             flex: auto;
             white-space: nowrap;
+
+            &:hover p{
+              cursor: pointer;
+            }
           }
         }
 
@@ -252,17 +261,19 @@ time{
 
     .content{
       background-color: $bg_content;
-      max-width: 1170px;
+      //max-width: 1170px;
       width: 100%;
       padding-bottom: 100px;
-      //z-index: 0;
+      margin-left: 270px;
 
       header{
         background-color: $bg_header;
         position: sticky;
+        //position: fixed;
         top: 0;
         width: 100%;
-        max-width: 1170px;
+        max-width: inherit;
+        //max-width: 1170px;
         padding: 35px 30px 0;
         z-index: 1;
         @include transition(.3s);
@@ -485,6 +496,7 @@ time{
             width: 100px;
             height: 100px;
             margin-bottom: 10px;
+            cursor: pointer;
 
             &:not(:last-child){
               margin-right: 10px;
@@ -560,7 +572,7 @@ time{
 }
 
 
-//******************** Temp style ********************/
+//******************** Temp style *********************/
 .border_green{
   border: 1px solid green;
 }

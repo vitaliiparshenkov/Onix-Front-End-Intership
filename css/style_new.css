@@ -111,28 +111,23 @@ time {
   white-space: nowrap;
 }
 
-.wrapper {
-  background-color: #acacac;
-}
 .wrapper .wrapper_container {
-  background-color: #000000;
-  max-width: 1440px;
-  margin: 0 auto;
   width: 100%;
   min-height: 100vh;
 }
 .wrapper .wrapper_container .sidebar {
-  background-color: #000000;
-  -webkit-box-flex: 0;
-      -ms-flex: 0 1 270px;
-          flex: 0 1 270px;
-  color: #ffffff;
-  max-width: 270px;
-  -ms-flex-item-align: start;
-      align-self: flex-start;
-  position: sticky;
+  position: fixed;
+  width: 100%;
   top: 0;
   z-index: 1;
+  background-color: #000000;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 270px;
+          flex: 0 0 270px;
+  color: #ffffff;
+  max-width: 270px;
+  min-height: 100vh;
+  overflow: auto;
 }
 .wrapper .wrapper_container .sidebar p {
   font-size: 12px;
@@ -263,6 +258,10 @@ time {
           flex: auto;
   white-space: nowrap;
 }
+.wrapper .wrapper_container .sidebar aside .statistic .complete:hover p,
+.wrapper .wrapper_container .sidebar aside .statistic .open:hover p {
+  cursor: pointer;
+}
 .wrapper .wrapper_container .sidebar aside .menu {
   text-transform: uppercase;
   padding-bottom: 10px;
@@ -300,16 +299,16 @@ time {
 }
 .wrapper .wrapper_container .content {
   background-color: #eeebe5;
-  max-width: 1170px;
   width: 100%;
   padding-bottom: 100px;
+  margin-left: 270px;
 }
 .wrapper .wrapper_container .content header {
   background-color: #ffffff;
   position: sticky;
   top: 0;
   width: 100%;
-  max-width: 1170px;
+  max-width: inherit;
   padding: 35px 30px 0;
   z-index: 1;
   -webkit-transition: 0.3s;
@@ -524,6 +523,7 @@ time {
   width: 100px;
   height: 100px;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 .wrapper .wrapper_container .content main .img_box .img_container:not(:last-child) {
   margin-right: 10px;
