@@ -62,7 +62,7 @@ aside
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import {CurrentUserInterface} from '@/types/user.interface';
+import {CurrentUserInterface} from '@/types/user.interface.ts';
 export default defineComponent({
   data() {
     return {

@@ -37,6 +37,7 @@ export default defineComponent({
       headerIconList: ['foto_1.jpg', 'foto_2.jpg', 'foto_3.jpg'] as Array<string>,
     };
   },
+  name: 'header',
 });
 </script>
 

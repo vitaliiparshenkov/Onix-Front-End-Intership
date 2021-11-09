@@ -16,7 +16,7 @@ p.day today
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import {MessageInterface} from '@/types/activity.interface';
+import {MessageInterface} from '@/types/activity.interface.ts';
 export default defineComponent({
   data() {
     return {
