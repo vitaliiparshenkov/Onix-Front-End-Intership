@@ -3,38 +3,40 @@ import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'root',
-    redirect: {name: 'Tasks'},
+    name: 'main',
+    redirect: {name: 'tasks'},
     // component: Activity
   },
   {
     path: '/activity',
-    name: 'Activity',
-    // component: Activity
-    component: () => import(/* webpackChunkName: "about" */ '../views/Activity.vue'),
+    name: 'activity',
+    component: () => import('../views/Activity.vue'),
   },
   {
     path: '/tasks',
-    name: 'Tasks',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Tasks.vue'),
+    name: 'tasks',
+    component: () => import('../views/Tasks.vue'),
   },
   {
     path: '/kanban',
-    name: 'Kanban',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Kanban.vue'),
+    name: 'kanban',
+    component: () => import('../views/Kanban.vue'),
   },
   {
     path: '/calendar',
-    name: 'Calendar',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Calendar.vue'),
+    name: 'calendar',
+    component: () => import('../views/Calendar.vue'),
   },
   {
     path: '/files',
-    name: 'Files',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Files.vue'),
+    name: 'files',
+    component: () => import('../views/ComingSoon.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    // path: '*',
+    name: 'not-found',
+    component: () => import('../views/404.vue'),
   },
 ];
 

@@ -14,15 +14,15 @@ aside
 
       .header_menu(:class="{visible: showBurgerMenu}")
         .navbar
-          router-link(tag="li" active-class="active" class="navbar-item" :to="`/tasks`" @click="showBurger")
+          router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'tasks'}" @click="showBurger")
             a Tasks
-          router-link(tag="li" active-class="active" class="navbar-item" :to="'/kanban'" @click="showBurger")
+          router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'kanban'}" @click="showBurger")
             a Kanban
-          router-link(tag="li" active-class="active" class="navbar-item" :to="'/activity'" @click="showBurger")
+          router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'activity'}" @click="showBurger")
             a Activity
-          router-link(tag="li" active-class="active" class="navbar-item" :to="'/calendar'" @click="showBurger")
+          router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'calendar'}" @click="showBurger")
             a Calendar
-          router-link(tag="li" active-class="active" class="navbar-item" :to="'/files'" @click="showBurger")
+          router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'files'}" @click="showBurger")
             a Files
 
   .profile
@@ -47,7 +47,8 @@ aside
         p(@click="changeCompletedTasks") Completed Tasks
       .open
         h2 {{ openTasks }}
-        p Open Tasks
+        p(@click="goTaskPage")
+          | Open Tasks
     nav.sidebar_menu
       p.menu menu
       ul
@@ -89,6 +90,11 @@ export default defineComponent({
         } else {
           alert("Sorry, but you were carried away by your work and did not see that you don't have open projects.");
         }
+      }
+    },
+    goTaskPage() {
+      if (this.openTasks > 0) {
+        this.$router.push({name: 'tasks'});
       }
     },
     showStatistic() {

@@ -17,15 +17,15 @@ header
 
   nav.header_menu
     ul.navbar
-      router-link(tag="li" active-class="active" class="navbar-item" :to="`/tasks`")
+      router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'tasks'}" exact)
         a Tasks
-      router-link(tag="li" active-class="active" class="navbar-item" :to="'/kanban'")
+      router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'kanban'}" exact)
         a Kanban
-      router-link(tag="li" active-class="active" class="navbar-item" :to="'/activity'")
+      router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'activity'}" exact)
         a Activity
-      router-link(tag="li" active-class="active" class="navbar-item" :to="'/calendar'")
+      router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'calendar'}" exact)
         a Calendar
-      router-link(tag="li" active-class="active" class="navbar-item" :to="'/files'")
+      router-link(tag="li" active-class="active" class="navbar-item" :to="{name: 'files'}" exact)
         a Files
 </template>
 
