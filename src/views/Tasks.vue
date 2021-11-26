@@ -1,14 +1,18 @@
 <template lang="pug">
 h1 Todo List
+hr
+AddTask(@add-task="addTask")
 ul
   li(v-for="(todo, i) of todoList" :key="i")
     .li
-      span(:class="{done: todo.completed}")
+      span.task(:class="{done: todo.completed}")
         input(type="checkbox" @change="todo.completed = !todo.completed" :id="'task_' + i")
         label(:for="'task_' + i")
-          strong {{ todo.name }}&nbsp;
+          strong {{ todo.name }}
             time(datetime="2010-07-26T23:42+03:00") ({{ todo.completionDate }})
-      button.watch(@click="todo.show = !todo.show") &#128269;
+      span.panel
+        button.watch(@click="todo.show = !todo.show") &#128269;
+        button.delete(@click="removeTodo(i)") &times;
     div(:class="['desc', {completed: todo.completed}]" v-show="todo.show")
       |{{ todo.desc }}
 </template>
@@ -16,6 +20,7 @@ ul
 <script lang="ts">
 import {defineComponent} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
+import AddTask from '@/components/AddTask.vue';
 export default defineComponent({
   data() {
     return {
@@ -79,16 +84,30 @@ export default defineComponent({
       ] as TodoInterface[],
     };
   },
+  methods: {
+    removeTodo(i: number) {
+      this.todoList.splice(i, 1);
+    },
+    addTask(task: any) {
+      this.todoList.push(task);
+    },
+  },
+  components: {
+    AddTask,
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  border-bottom: 1px solid #cccccc;
+}
 ul {
   margin-top: 30px;
 
   li {
     border: 1px solid #ccc;
-    padding: 0.5rem 2rem;
+    padding: 10px 25px;
     margin-bottom: 1rem;
     transition: all 0.3s;
 
@@ -96,16 +115,38 @@ ul {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
 
-      span {
+      span.task {
+        margin-right: 90px;
         display: flex;
+        overflow: hidden;
+      }
+
+      span.panel {
+        min-width: 67px;
+        position: absolute;
+        right: 0;
       }
 
       input {
         margin-right: 1rem;
       }
 
-      strong {
+      .delete {
+        border: 1px solid #cccccc;
+        padding: 4px 8px;
+        margin-left: 15px;
+        /*background: #0060df;*/
+        background: #eaeaea;
+        color: red;
+        font-weight: bold;
+
+        &:hover {
+          background-color: #ffc200;
+          border: 1px solid #ccc;
+          transition: 0.3s ease-out;
+        }
       }
 
       time {
@@ -113,9 +154,10 @@ ul {
       }
 
       .watch {
-        margin-left: 15px;
+        /*margin-left: 15px;*/
         padding: 3px 5px;
         border: 1px solid #ccc;
+        transition: 0.3s ease-out;
       }
 
       .done {
@@ -135,6 +177,12 @@ ul {
         opacity: 0.5;
       }
     }
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  ul > li {
+    padding: 5px 10px;
   }
 }
 </style>
