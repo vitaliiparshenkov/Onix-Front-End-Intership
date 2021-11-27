@@ -1,0 +1,102 @@
+<template lang="pug">
+form(@submit.prevent="onSubmit")
+  fieldset
+    legend &nbsp;Form for adding a new task&nbsp;
+    label(for="todoName") Name
+      em *
+    input(type="text" v-model="todoName" id="todoName" placeholder="" required autofocus)
+    br
+    label(for="todoDesc") Description
+      em *
+    textarea(v-model="todoDesc" id="todoDesc" placeholder="" required rows="2")
+    button(type="submit") Add task
+</template>
+
+<script lang="ts">
+import {defineComponent} from 'vue';
+export default defineComponent({
+  data() {
+    return {
+      todoName: '',
+      todoDesc: '',
+    };
+  },
+  methods: {
+    onSubmit() {
+      if (this.todoName.trim() && this.todoDesc.trim()) {
+        let newTask = {
+          name: this.todoName,
+          desc: this.todoDesc,
+          completionDate: new Date().getDate() + '-' + new Date().getMonth() + '-' + new Date().getFullYear(),
+          completed: false,
+          show: false,
+        };
+
+        this.$emit('add-task', newTask);
+        this.todoName = '';
+        this.todoDesc = '';
+      }
+    },
+  },
+});
+</script>
+
+<style lang="scss" scoped>
+form {
+  margin-top: 15px;
+
+  fieldset {
+    border: 1px solid #cccccc;
+    padding: 10px;
+
+    legend {
+      font-size: 15px;
+      font-weight: bolder;
+      letter-spacing: 1.2px;
+    }
+
+    label {
+      display: inline-block;
+      width: 85px;
+      margin: 3px 0;
+
+      em {
+        color: red;
+        font-weight: bold;
+      }
+    }
+
+    input,
+    textarea {
+      padding: 3px 5px;
+      display: block;
+      width: 100%;
+      max-width: 648px;
+      border: 1px solid #cccccc;
+      font-size: 13px;
+      line-height: 16px;
+
+      &:focus {
+        background: #fff8dd;
+      }
+    }
+
+    button {
+      margin-top: 15px;
+      border-radius: 15px;
+      background-color: #ffc200;
+      color: #131313;
+      /*color: #753ad7;*/
+      padding: 5px 15px;
+      border: 1px solid #cccccc;
+      font-size: 15px;
+
+      &:hover {
+        background-color: #eaeaea;
+        border: 1px solid #cccccc;
+        transition: 0.3s ease-out;
+      }
+    }
+  }
+}
+</style>
