@@ -2,17 +2,17 @@
 div(:class="['wrapper', {lock: showStats}]" @lockWrapper="showStats = $event")
 	.wrapper_container
 		.sidebar
-			Sidebar(:notifications="notifications")
+			TheSidebar(:notifications="notifications")
 
 		.content
-			Header
+			TheHeader
 			main
 				router-view(@changeNotifis="notifications = $event")
 </template>
 
 <script lang="ts">
-import Sidebar from '@/components/Sidebar.vue';
-import Header from '@/components/Header.vue';
+import TheSidebar from '@/components/TheSidebar.vue';
+import TheHeader from '@/components/TheHeader.vue';
 import {defineComponent} from 'vue';
 
 export default defineComponent({
@@ -24,8 +24,8 @@ export default defineComponent({
   },
   name: 'layout',
   components: {
-    Sidebar,
-    Header,
+    TheSidebar,
+    TheHeader,
   },
 });
 </script>

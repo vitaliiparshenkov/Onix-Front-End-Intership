@@ -1,3 +1,18 @@
 <template lang="pug">
-h1 Files
+coming-soon
 </template>
+
+<script lang="ts">
+import {defineComponent} from 'vue';
+import ComingSoon from '@/components/ComingSoon.vue';
+export default defineComponent({
+  data() {
+    return {};
+  },
+  name: 'files',
+  components: {
+    'coming-soon': ComingSoon,
+    // ComingSoon: () => import('@/components/ComingSoon.vue'),
+  },
+});
+</script>

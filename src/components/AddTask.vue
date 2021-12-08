@@ -9,7 +9,7 @@ form(@submit.prevent="onSubmit")
     label(for="todoDesc") Description
       em *
     textarea(v-model="todoDesc" id="todoDesc" placeholder="" required rows="2")
-    button(type="submit") Add task
+    button(type="submit" :class="{hidden: !visible}") Add task
 </template>
 
 <script lang="ts">
@@ -19,12 +19,13 @@ export default defineComponent({
     return {
       todoName: '',
       todoDesc: '',
+      visible: true,
     };
   },
   methods: {
     onSubmit() {
       if (this.todoName.trim() && this.todoDesc.trim()) {
-        let newTask = {
+        const newTask = {
           name: this.todoName,
           desc: this.todoDesc,
           completionDate: new Date().getDate() + '-' + new Date().getMonth() + '-' + new Date().getFullYear(),
@@ -33,15 +34,31 @@ export default defineComponent({
         };
 
         this.$emit('add-task', newTask);
+        this.visible = false;
+        setTimeout(() => {this.visible = true;} , 3000);
         this.todoName = '';
         this.todoDesc = '';
       }
     },
   },
+
+  watch: {
+    // todoName(value) {
+	//
+    // },
+    // todoDesc(value) {
+    //
+    // },
+  },
 });
 </script>
 
 <style lang="scss" scoped>
+  .hidden{
+    visibility: hidden;
+    transition: all 0.8s ease;
+  }
+
 form {
   margin-top: 15px;
 
@@ -90,6 +107,7 @@ form {
       padding: 5px 15px;
       border: 1px solid #cccccc;
       font-size: 15px;
+      transition: all 0.8s ease;
 
       &:hover {
         background-color: #eaeaea;
