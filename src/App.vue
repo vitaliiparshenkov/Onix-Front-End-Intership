@@ -1,14 +1,14 @@
 <template lang="pug">
-Layout
+page-layout
 </template>
 
 <script lang="ts">
-import Layout from './components/Layout.vue';
+import PageLayout from './components/PageLayout.vue';
 
 export default {
   name: 'app',
   components: {
-    Layout,
+    'page-layout': PageLayout,
   },
 };
 </script>

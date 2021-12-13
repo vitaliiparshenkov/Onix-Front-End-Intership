@@ -4,5 +4,5 @@ export interface TodoInterface {
   completionDate: string;
   completed: boolean;
   show: boolean;
-  bank: number;
+  bank?: number;
 }
