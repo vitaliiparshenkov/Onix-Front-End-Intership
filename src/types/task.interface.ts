@@ -4,5 +4,14 @@ export interface TodoInterface {
   completionDate: string;
   completed: boolean;
   show: boolean;
-  bank?: number;
+  status: StatusEnum;
+}
+
+export enum StatusEnum {
+  // Todo = 1,
+  // Inprogress,
+  // Done,
+  Todo = 'todo',
+  Inprogress = 'inprogress',
+  Done = 'done',
 }

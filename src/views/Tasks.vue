@@ -3,14 +3,16 @@ h1 Todo List
 hr
 add-task(@add-task="addTask")
 transition-group(tag="ul" name="list-complete" v-if="todoList.length")
-  <!--li(v-for="(todo, taskId) of todoList" :key="taskId" class="blink" :ref="`todoItem-${taskId}`")-->
   li(v-for="(todo, taskId) of todoList" :key="todo" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
       span.task(:class="{done: todo.completed}")
         input(type="checkbox" @change="todo.completed = !todo.completed" :id="`task-${taskId}`")
         label(:for="`task-${taskId}`")
-          strong() {{ todo.name }}
-            time(datetime="2010-07-26T23:42+03:00") ({{ todo.completionDate }})
+          strong() {{ todo.name }}&ensp;
+          time(datetime="2010-07-26T23:42+03:00") ({{ todo.completionDate }})
+          i(v-if="todo.status == 'todo'") &ensp;:Todo
+          i(v-else-if="todo.status == 'inprogress'") &ensp;:Inprogress
+          i(v-else="todo.status == 'done'") &ensp;:Done
       span.panel
         button.watch(@click="todo.show = !todo.show") &#128269;
         button.delete(@click="removeTask(taskId)") &times;
@@ -25,6 +27,7 @@ div(v-else)
 import {defineComponent, ref} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
 import AddTask from '@/components/AddTask.vue';
+
 export default defineComponent({
   // setup() {
   // const elList = ref([]);
@@ -38,6 +41,8 @@ export default defineComponent({
     };
   },
 
+  props: ['todoListGlobal'],
+
   methods: {
     removeTask(i: number): void {
       this.todoList.splice(i, 1);
@@ -50,16 +55,18 @@ export default defineComponent({
 
     goByElem() {
       for (let i = 0; i < this.elList.length; i++) {
-        let el: any = this.elList[i];
+        let el: HTMLElement = this.elList[i];
         if (el) {
-          setTimeout(()=>{el.classList.add('scale');}, i * 200);
+          setTimeout(() => {
+            el.classList.add('scale');
+          }, i * 200);
         }
       }
       setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
     },
 
     removeClass(clasName: string) {
-      let el: any;
+      let el: HTMLElement;
       for (let i = 0; i < this.elList.length; i++) {
         el = this.elList[i];
         if (el) {
@@ -76,66 +83,83 @@ export default defineComponent({
   beforeCreate() {
     // console.log('beforeCreate()');
   },
-  created() {
+  created: function () {
     // console.log('created()');
-    this.todoList = [
-      {
-        name: 'Доделать домашнее задание №3',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '02-11-2021',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Сделать домашнее задание №4',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '05-11-2021',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Закончить Onix front-end Intership',
-        desc: 'Получить диплом(грамоту)',
-        completionDate: '31-12-2021',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Попасть в onix team',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '31-01-2022',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Получить offer',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '15-01-2022',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Пройти испытательный срок',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '15-04-2022',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Договориться о высокой ЗП',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '10-01-2022',
-        completed: false,
-        show: false,
-      },
-      {
-        name: 'Полноценно приступить к работе',
-        desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '10-01-2022',
-        completed: false,
-        show: false,
-      },
-    ];
+    this.todoList = this.todoListGlobal;
+    // this.todoList = [
+    //   {
+    //     name: 'Доделать домашнее задание №3',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '02-11-2021',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Todo,
+    //     status: 'todo',
+    //   },
+    //   {
+    //     name: 'Сделать домашнее задание №4',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '05-11-2021',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Todo,
+    //     status: 'todo',
+    //   },
+    //   {
+    //     name: 'Закончить Onix front-end Intership',
+    //     desc: 'Получить диплом(грамоту)',
+    //     completionDate: '31-12-2021',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Todo,
+    //     status: 'todo',
+    //   },
+    //   {
+    //     name: 'Попасть в onix team',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '31-01-2022',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Todo,
+    //     status: 'todo',
+    //   },
+    //   {
+    //     name: 'Получить offer',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '15-01-2022',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Done,
+    //     status: 'done',
+    //   },
+    //   {
+    //     name: 'Пройти испытательный срок',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '15-04-2022',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Done,
+    //     status: 'done',
+    //   },
+    //   {
+    //     name: 'Договориться о высокой ЗП',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '10-01-2022',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Inprogress,
+    //     status: 'inprogress',
+    //   },
+    //   {
+    //     name: 'Полноценно приступить к работе',
+    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
+    //     completionDate: '10-01-2022',
+    //     completed: false,
+    //     show: false,
+    //     // status: StatusEnum.Todo,
+    //     status: 'todo',
+    //   },
+    // ];
   },
   beforeMount() {
     // console.log('beforeMount()');
@@ -153,11 +177,12 @@ export default defineComponent({
   },
   beforeUnmount() {
     // console.log('beforeUnmount()');
+    this.$emit('todoListGlobalUpdate', this.todoList);
   },
   unmounted() {
     // console.log('unmounted()');
   },
-  emits: ['changeNotifis'],
+  emits: ['changeNotifis', 'todoListGlobalUpdate'],
 });
 </script>
 
@@ -166,7 +191,7 @@ h1 {
   border-bottom: 1px solid #cccccc;
 }
 
-.noTasks{
+.noTasks {
   border-top: 2px solid darkred;
   margin-top: 25px;
   padding-top: 5px;
@@ -194,6 +219,18 @@ ul {
         margin-right: 90px;
         display: flex;
         overflow: hidden;
+
+        label {
+          strong,
+          time,
+          i {
+            line-height: 18px;
+          }
+
+          i {
+            opacity: 0.5;
+          }
+        }
       }
 
       span.panel {
@@ -259,7 +296,7 @@ ul {
   }
 }
 
-.list-complete-item{
+.list-complete-item {
   transition: all 0.5s ease;
   display: inline-block;
   width: 100%;
@@ -277,7 +314,7 @@ ul {
 
 .blink {
   border: 2px solid #ffc200;
-  animation: blink .7s linear infinite;
+  animation: blink 0.7s linear infinite;
 }
 
 @keyframes blink {
@@ -287,7 +324,7 @@ ul {
 }
 
 .scale {
-  animation: goToElem .5s ease-out 1;
+  animation: goToElem 0.5s ease-out 1;
 }
 
 @keyframes goToElem {
@@ -297,7 +334,9 @@ ul {
     /*transform: scale(1) translate(30px, 20px) rotate(20deg);*/
   }
   /*50% {transform: scale(1.2) translate(15px, 10px) rotate(10deg);}*/
-  50% {transform: scale(1.3);}
+  50% {
+    transform: scale(1.3);
+  }
   to {
     transform: scale(1);
     /*transform: scale(1) translate(0) rotate(0deg);*/
