@@ -25,17 +25,24 @@ export default defineComponent({
   methods: {
     onSubmit() {
       if (this.todoName.trim() && this.todoDesc.trim()) {
+        let nowDate = new Date();
+        let currDate = nowDate.getMonth() + 1 + '/' + nowDate.getDate() + '/' + nowDate.getFullYear();
+
         const newTask = {
           name: this.todoName,
           desc: this.todoDesc,
-          completionDate: new Date().getDate() + '-' + new Date().getMonth() + '-' + new Date().getFullYear(),
+          completionDate: currDate,
           completed: false,
           show: false,
+          // status: StatusEnum.Todo,
+          status: 'todo',
         };
 
         this.$emit('add-task', newTask);
         this.visible = false;
-        setTimeout(() => {this.visible = true;} , 3000);
+        setTimeout(() => {
+          this.visible = true;
+        }, 3000);
         this.todoName = '';
         this.todoDesc = '';
       }
@@ -44,7 +51,7 @@ export default defineComponent({
 
   watch: {
     // todoName(value) {
-	//
+    //
     // },
     // todoDesc(value) {
     //
@@ -54,10 +61,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-  .hidden{
-    visibility: hidden;
-    transition: all 0.8s ease;
-  }
+.hidden {
+  visibility: hidden;
+  transition: all 0.8s ease;
+}
 
 form {
   margin-top: 15px;
@@ -103,7 +110,6 @@ form {
       border-radius: 15px;
       background-color: #ffc200;
       color: #131313;
-      /*color: #753ad7;*/
       padding: 5px 15px;
       border: 1px solid #cccccc;
       font-size: 15px;
