@@ -24,7 +24,9 @@ export default defineComponent({
       todoListGlobal: [] as TodoInterface[],
     };
   },
+
   name: 'layout',
+
   components: {
     TheSidebar,
     TheHeader,
@@ -38,7 +40,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
         name: 'Сделать домашнее задание №4',
@@ -47,7 +48,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
         name: 'Закончить Onix front-end Intership',
@@ -56,7 +56,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
         name: 'Попасть в onix team',
@@ -65,7 +64,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
         name: 'Получить offer',
@@ -74,7 +72,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Done,
-        // status: 'done',
       },
       {
         name: 'Пройти испытательный срок',
@@ -83,7 +80,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Done,
-        // status: 'done',
       },
       {
         name: 'Договориться о высокой ЗП',
@@ -92,7 +88,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Inprogress,
-        // status: 'inprogress',
       },
       {
         name: 'Полноценно приступить к работе',
@@ -101,7 +96,6 @@ export default defineComponent({
         completed: false,
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
     ];
   },

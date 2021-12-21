@@ -1,11 +1,17 @@
 <template lang="pug">
-h1 Todo List
+modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
+  template(v-slot:body)
+    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task="changeTask")
+
+div.task-header-container
+  h1.todo-list Todo List
+  button.add-new-task(@click="isOpenModal = true" :class="{active: isOpenModal}")
+    i.fas.fa-plus
 hr
-add-task(@add-task="addTask")
 transition-group(tag="ul" name="list-complete" v-if="todoList.length")
   li(v-for="(todo, taskId) of todoList" :key="todo" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
-      span.task(:class="{done: todo.completed}")
+      span.task(:class="{done: todo.completed}" @click.prevent="modifyTask(taskId)")
         input(type="checkbox" @change="todo.completed = !todo.completed" :id="`task-${taskId}`")
         label(:for="`task-${taskId}`")
           strong() {{ todo.name }}&ensp;
@@ -26,7 +32,8 @@ div(v-else)
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
-import AddTask from '@/components/AddTask.vue';
+import AddEditTask from '@/components/AddEditTask.vue';
+import ModalWindow from '@/components/ModalWindow.vue';
 
 export default defineComponent({
   // setup() {
@@ -38,19 +45,41 @@ export default defineComponent({
     return {
       todoList: [] as TodoInterface[],
       elList: ref([]),
+      isOpenModal: false,
+      changeTask: {} as TodoInterface,
+      changeTaskId: -1,
     };
   },
 
   props: ['todoListGlobal'],
 
   methods: {
+    saveTask(task: TodoInterface): void {
+      if (this.changeTaskId == -1) {
+        this.todoList.push(task);
+      } else {
+        this.todoList[this.changeTaskId] = task;
+      }
+      setTimeout(this.removeClass, 3000, 'blink');
+      this.closeModalWindow();
+    },
+
+    modifyTask(taskId: number) {
+      this.changeTask = this.todoList[taskId];
+      this.changeTaskId = taskId;
+      this.isOpenModal = true;
+    },
+
     removeTask(i: number): void {
       this.todoList.splice(i, 1);
     },
 
-    addTask(task: TodoInterface): void {
-      this.todoList.push(task);
-      setTimeout(this.removeClass, 3000, 'blink');
+    closeModalWindow() {
+      this.isOpenModal = false;
+      if (this.changeTaskId != -1) {
+        this.changeTask = {} as TodoInterface;
+        this.changeTaskId = -1;
+      }
     },
 
     goByElem() {
@@ -65,19 +94,20 @@ export default defineComponent({
       setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
     },
 
-    removeClass(clasName: string) {
+    removeClass(className: string) {
       let el: HTMLElement;
       for (let i = 0; i < this.elList.length; i++) {
         el = this.elList[i];
         if (el) {
-          el.classList.remove(clasName);
+          el.classList.remove(className);
         }
       }
     },
   },
 
   components: {
-    'add-task': AddTask,
+    'add-edit-task': AddEditTask,
+    'modal-window': ModalWindow,
   },
 
   beforeCreate() {
@@ -85,81 +115,7 @@ export default defineComponent({
   },
   created: function () {
     // console.log('created()');
-    this.todoList = this.todoListGlobal;
-    // this.todoList = [
-    //   {
-    //     name: 'Доделать домашнее задание №3',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '02-11-2021',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Todo,
-    //     status: 'todo',
-    //   },
-    //   {
-    //     name: 'Сделать домашнее задание №4',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '05-11-2021',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Todo,
-    //     status: 'todo',
-    //   },
-    //   {
-    //     name: 'Закончить Onix front-end Intership',
-    //     desc: 'Получить диплом(грамоту)',
-    //     completionDate: '31-12-2021',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Todo,
-    //     status: 'todo',
-    //   },
-    //   {
-    //     name: 'Попасть в onix team',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '31-01-2022',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Todo,
-    //     status: 'todo',
-    //   },
-    //   {
-    //     name: 'Получить offer',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '15-01-2022',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Done,
-    //     status: 'done',
-    //   },
-    //   {
-    //     name: 'Пройти испытательный срок',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '15-04-2022',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Done,
-    //     status: 'done',
-    //   },
-    //   {
-    //     name: 'Договориться о высокой ЗП',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '10-01-2022',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Inprogress,
-    //     status: 'inprogress',
-    //   },
-    //   {
-    //     name: 'Полноценно приступить к работе',
-    //     desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-    //     completionDate: '10-01-2022',
-    //     completed: false,
-    //     show: false,
-    //     // status: StatusEnum.Todo,
-    //     status: 'todo',
-    //   },
-    // ];
+    this.todoList = [...this.todoListGlobal];
   },
   beforeMount() {
     // console.log('beforeMount()');
@@ -182,13 +138,43 @@ export default defineComponent({
   unmounted() {
     // console.log('unmounted()');
   },
-  emits: ['changeNotifis', 'todoListGlobalUpdate'],
+  emits: {
+    todoListGlobalUpdate: null,
+  },
 });
 </script>
 
 <style lang="scss" scoped>
-h1 {
+.lock {
+  overflow: hidden;
+  position: fixed;
+}
+
+.task-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid #cccccc;
+
+  .add-new-task {
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    transition: 0.3s ease-out;
+
+    i {
+      transition: 0.3s ease-out;
+    }
+
+    &:hover,
+    &.active {
+      background-color: #fff8dd;
+
+      i {
+        transform: rotate(45deg);
+        color: darkred;
+      }
+    }
+  }
 }
 
 .noTasks {
@@ -219,6 +205,7 @@ ul {
         margin-right: 90px;
         display: flex;
         overflow: hidden;
+        transition: 0.3s ease-out;
 
         label {
           strong,
@@ -230,6 +217,11 @@ ul {
           i {
             opacity: 0.5;
           }
+        }
+
+        :hover {
+          cursor: pointer;
+          background: #fff8dd;
         }
       }
 
@@ -290,12 +282,6 @@ ul {
   }
 }
 
-@media only screen and (max-width: 480px) {
-  ul > li {
-    padding: 10px;
-  }
-}
-
 .list-complete-item {
   transition: all 0.5s ease;
   display: inline-block;
@@ -341,6 +327,12 @@ ul {
     transform: scale(1);
     /*transform: scale(1) translate(0) rotate(0deg);*/
     border: 1px solid #ccc;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  ul > li {
+    padding: 10px;
   }
 }
 </style>

@@ -36,7 +36,7 @@ export default defineComponent({
   props: ['todoListGlobal'],
   computed: {
     getTodo() {
-      let currDate = new Date(
+      const currDate = new Date(
         this.nowDate.getMonth() + 1 + '/' + this.nowDate.getDate() + '/' + this.nowDate.getFullYear(),
       );
       return this.todoListGlobal.filter(
@@ -45,7 +45,7 @@ export default defineComponent({
     },
 
     getInprogress() {
-      let currDate = new Date(
+      const currDate = new Date(
         this.nowDate.getMonth() + 1 + '/' + this.nowDate.getDate() + '/' + this.nowDate.getFullYear(),
       );
       return this.todoListGlobal.filter(
@@ -54,7 +54,7 @@ export default defineComponent({
     },
 
     getDone() {
-      let currDate = new Date(
+      const currDate = new Date(
         this.nowDate.getMonth() + 1 + '/' + this.nowDate.getDate() + '/' + this.nowDate.getFullYear(),
       );
       return this.todoListGlobal.filter(
@@ -65,7 +65,7 @@ export default defineComponent({
   name: 'kanban',
 
   created() {
-    this.todoList = this.todoListGlobal;
+    this.todoList = [...this.todoListGlobal];
   },
 });
 </script>
