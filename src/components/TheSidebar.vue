@@ -80,7 +80,7 @@ export default defineComponent({
   },
   name: 'sidebar',
   props: ['notifications'],
-  emits: ['lockWrapper'],
+  emits: {lockWrapper: null},
   methods: {
     changeCompletedTasks() {
       if (confirm('Are you sure you want to change the number of tasks?')) {

@@ -9,6 +9,20 @@ form(@submit.prevent="onSubmit")
     label(for="todoDesc") Description
       em *
     textarea(v-model="changeRecord.desc" id="todoDesc" placeholder="" required rows="2" :disabled="isDisable")
+    .flex
+      .status
+        br
+        label(for="status") Status
+          em *
+        select(v-model="changeRecord.status" id="status" :disabled="isDisable || isStatusOperationAdd")
+          option(value="todo") To Do
+          option(value="inprogress") In Progress
+          option(value="done") Done
+      .date
+        br
+        label(for="date") Complete&nbsp;date
+          em *
+        datepicker.date-class(id="date" v-model="changeRecord.completionDate" :lowerLimit="from" readonly :disabled="isDisable" :inputFormat="inputFormat")
     button(type="submit" :class="{hidden: !visible}") {{buttonCaption}}
     p.wrong(v-show="showMessageWrongPeriod") Completed tasks cannot be edited
 </template>
@@ -16,6 +30,9 @@ form(@submit.prevent="onSubmit")
 <script lang="ts">
 import {defineComponent} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
+import Datepicker from 'vue3-datepicker';
+// import Datepicker from 'vue3-date-time-picker';
+// import 'vue3-date-time-picker/dist/main.css';
 export default defineComponent({
   data() {
     return {
@@ -24,7 +41,14 @@ export default defineComponent({
       statusOper: StatusOperation.Add as StatusOperation,
       changeRecord: {} as TodoInterface,
       showMessageWrongPeriod: false,
+      from: new Date(),
+      inputFormat: 'MM/dd/yyyy',
     };
+  },
+
+  // name: 'kanban',
+  components: {
+    datepicker: Datepicker,
   },
 
   props: ['modifyTask'],
@@ -48,12 +72,6 @@ export default defineComponent({
         this.$emit('cancel');
       } else {
         //-- Add/Edit new task -----
-        if (this.statusOper == StatusOperation.Add && this.changeRecord.name.trim() && this.changeRecord.desc.trim()) {
-          let nowDate = new Date();
-          let currDate = nowDate.getMonth() + 1 + '/' + nowDate.getDate() + '/' + nowDate.getFullYear();
-          this.changeRecord.completionDate = currDate;
-        }
-
         this.$emit('save-task', this.changeRecord);
         this.visible = false;
         setTimeout(() => {
@@ -70,9 +88,10 @@ export default defineComponent({
       this.statusOper = StatusOperation.Edit;
     } else {
       this.changeRecord = {
+        taskId: -1,
         name: '',
         desc: '',
-        completionDate: '',
+        completionDate: new Date(),
         completed: false,
         show: false,
         status: StatusEnum.Todo,
@@ -86,7 +105,6 @@ export default defineComponent({
         'changeRecord',
         () => {
           this.statusOper = StatusOperation.Save;
-          // console.log(this.statusOper);
           changeRec();
         },
         {deep: true},
@@ -107,15 +125,33 @@ export default defineComponent({
       }
       return StatusOperation[0];
     },
+
+    isStatusOperationAdd() {
+      if (this.statusOper == StatusOperation.Add) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .wrong {
   color: red;
   font-size: 12px;
   margin-top: 10px;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+
+  .status,
+  .date {
+    width: 45%;
+  }
 }
 
 .hidden {
@@ -148,7 +184,9 @@ form {
     }
 
     input,
-    textarea {
+    textarea,
+    select,
+    input#date.date-class {
       padding: 3px 5px;
       display: block;
       width: 100%;
@@ -162,9 +200,18 @@ form {
       }
     }
 
+    select {
+      min-width: 100%;
+      max-width: 40%;
+      background-color: inherit;
+
+      option {
+        border-top: 1px solid #cccccc;
+      }
+    }
+
     button {
-      margin-top: 15px;
-      /*border-radius: 15px;*/
+      margin-top: 20px;
       background-color: #ffc200;
       color: #131313;
       padding: 4px 25px;
@@ -177,6 +224,17 @@ form {
         border: 1px solid #cccccc;
         transition: 0.3s ease-out;
       }
+    }
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .flex {
+    flex-direction: column-reverse;
+
+    .status,
+    .date {
+      width: 100%;
     }
   }
 }

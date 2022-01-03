@@ -1,9 +1,9 @@
 export interface TodoInterface {
-  id?: number;
+  taskId: number;
   name: string;
   desc: string;
-  completionDate: string;
-  completed: boolean;
+  completionDate: Date;
+  completed?: boolean;
   show: boolean;
   status: StatusEnum;
 }

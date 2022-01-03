@@ -24,7 +24,7 @@ export default defineComponent({
     isOpen: {
       type: Boolean,
       require: true,
-    }
+    },
   },
 
   emits: {
@@ -36,24 +36,23 @@ export default defineComponent({
       this.$emit('closeModalWindow');
     },
     handleKeydown(e: any) {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         this.closeModalWindow();
       }
-    }
+    },
   },
 
   mounted() {
-    document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener('keydown', this.handleKeydown);
   },
 
   beforeUnmount() {
-    document.removeEventListener("keydown", this.handleKeydown);
-  }
+    document.removeEventListener('keydown', this.handleKeydown);
+  },
 });
 </script>
 
 <style lang="scss">
-
 .modal-shadow {
   position: absolute;
   top: 0;
@@ -73,10 +72,9 @@ export default defineComponent({
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  overflow: hidden;
+  /*overflow: hidden;*/
 
   &-close {
-    /*border-radius: 50%;*/
     color: #fff;
     background: #753ad7;
     display: flex;
@@ -91,10 +89,9 @@ export default defineComponent({
     transition: 0.3s ease-out;
     /*margin-bottom: 30px;*/
 
-    &:hover{
+    &:hover {
       color: darkred;
       background-color: transparent;
-      /*border: 1px solid #ffc200;*/
       transform: scale(1.4);
     }
   }
@@ -102,7 +99,7 @@ export default defineComponent({
   &-title {
     color: #0971c7;
     margin-top: 40px;
-    h2{
+    h2 {
       /*color: #000000;*/
     }
   }

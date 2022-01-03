@@ -11,18 +11,19 @@ hr
 transition-group(tag="ul" name="list-complete" v-if="todoList.length")
   li(v-for="(todo, taskId) of todoList" :key="todo" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
-      span.task(:class="{done: todo.completed}" @click.prevent="modifyTask(taskId)")
-        input(type="checkbox" @change="todo.completed = !todo.completed" :id="`task-${taskId}`")
+      span.task(:class="{done: todo.status === 'done'}" @click.prevent="modifyTask(todo)")
+        input(type="checkbox" @change="todo.completed = !todo.completed" :id="`task-${taskId}`" :checked="todo.status === 'done'")
         label(:for="`task-${taskId}`")
           strong() {{ todo.name }}&ensp;
-          time(datetime="2010-07-26T23:42+03:00") ({{ todo.completionDate }})
-          i(v-if="todo.status == 'todo'") &ensp;:Todo
-          i(v-else-if="todo.status == 'inprogress'") &ensp;:Inprogress
-          i(v-else="todo.status == 'done'") &ensp;:Done
+          time(datetime="2010-07-26T23:42+03:00") ({{ getDateInStringFormat(todo.completionDate) }})
+          <!--time(datetime="2010-07-26T23:42+03:00") ({{ todo.completionDate }})-->
+          i(v-if="todo.status === 'todo'") &ensp;:Todo
+          i(v-else-if="todo.status === 'inprogress'") &ensp;:Inprogress
+          i(v-else="todo.status === 'done'") &ensp;:Done
       span.panel
         button.watch(@click="todo.show = !todo.show") &#128269;
         button.delete(@click="removeTask(taskId)") &times;
-    div(:class="['desc', {completed: todo.completed}]" v-show="todo.show")
+    div(:class="['desc', {completed: todo.status === 'done'}]" v-show="todo.show")
       |{{ todo.desc }}
 div(v-else)
   hr
@@ -32,6 +33,7 @@ div(v-else)
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
+import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 
@@ -51,11 +53,29 @@ export default defineComponent({
     };
   },
 
+  // name: 'tasks',
+  components: {
+    'add-edit-task': AddEditTask,
+    'modal-window': ModalWindow,
+  },
+
   props: ['todoListGlobal'],
+
+  mixins: [dateInStringFormat],
+
+  emits: {
+    todoListGlobalUpdate: null,
+    'change-notifis': null,
+  },
 
   methods: {
     saveTask(task: TodoInterface): void {
-      if (this.changeTaskId == -1) {
+      if (task.taskId == -1) {
+        let newId = this.todoList.length;
+        while (this.todoList.findIndex((t) => t.taskId == newId) != -1) {
+          newId++;
+        }
+        task.taskId = newId;
         this.todoList.push(task);
       } else {
         this.todoList[this.changeTaskId] = task;
@@ -64,9 +84,9 @@ export default defineComponent({
       this.closeModalWindow();
     },
 
-    modifyTask(taskId: number) {
-      this.changeTask = this.todoList[taskId];
-      this.changeTaskId = taskId;
+    modifyTask(task: TodoInterface) {
+      this.changeTask = task;
+      this.changeTaskId = this.todoList.indexOf(task);
       this.isOpenModal = true;
     },
 
@@ -105,17 +125,12 @@ export default defineComponent({
     },
   },
 
-  components: {
-    'add-edit-task': AddEditTask,
-    'modal-window': ModalWindow,
-  },
-
   beforeCreate() {
     // console.log('beforeCreate()');
   },
   created: function () {
     // console.log('created()');
-    this.todoList = [...this.todoListGlobal];
+    this.todoList = this.todoListGlobal;
   },
   beforeMount() {
     // console.log('beforeMount()');
@@ -137,9 +152,6 @@ export default defineComponent({
   },
   unmounted() {
     // console.log('unmounted()');
-  },
-  emits: {
-    todoListGlobalUpdate: null,
   },
 });
 </script>

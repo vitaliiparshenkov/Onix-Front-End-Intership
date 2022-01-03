@@ -10,7 +10,7 @@ p.day today
 
     .msg_list(v-if="msgItem.imageList")
       .img_item(v-for="(imgItem, ind) of msgItem.imageList" :key="ind")
-        img(:src="require('@/assets/' + imgItem)" :alt="imgItem" @click="$emit('changeNotifis', ind)")
+        img(:src="require('@/assets/' + imgItem)" :alt="imgItem" @click="$emit('change-notifis', ind)")
   time.time(datetime="2010-07-26T23:42+03:00") {{ msgItem.time }}
 </template>
 
@@ -42,6 +42,11 @@ export default defineComponent({
       ] as MessageInterface[],
     };
   },
-  emits: ['changeNotifis'],
+
+  props: ['todoListGlobal'],
+
+  emits: {
+    'change-notifis': null,
+  },
 });
 </script>
