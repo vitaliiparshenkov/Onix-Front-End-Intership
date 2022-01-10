@@ -7,7 +7,7 @@ div(:class="['wrapper', {lock: showStats}]" @lockWrapper="showStats = $event")
 		.content
 			TheHeader
 			main
-				router-view(@changeNotifis="notifications = $event" :todoListGlobal="todoListGlobal" @todoListGlobalUpdate="todoListGlobal = $event")
+				router-view(@change-notifis="notifications = $event" :todoListGlobal="todoListGlobal" @todoListGlobalUpdate="todoListGlobal = $event")
 </template>
 
 <script lang="ts">
@@ -24,84 +24,79 @@ export default defineComponent({
       todoListGlobal: [] as TodoInterface[],
     };
   },
+
   name: 'layout',
+
   components: {
     TheSidebar,
     TheHeader,
   },
+
   created() {
     this.todoListGlobal = [
       {
+        taskId: 1,
         name: 'Доделать домашнее задание №3',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '11/22/2021',
-        completed: false,
+        completionDate: new Date('11/22/2021'),
         show: false,
-        status: StatusEnum.Todo,
-        // status: 'todo',
+        status: StatusEnum.Done,
       },
       {
+        taskId: 2,
         name: 'Сделать домашнее задание №4',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '11/05/2021',
-        completed: false,
+        completionDate: new Date('11/05/2021'),
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
+        taskId: 3,
         name: 'Закончить Onix front-end Intership',
         desc: 'Получить диплом(грамоту)',
-        completionDate: '12/31/2021',
-        completed: false,
+        completionDate: new Date('12/31/2021'),
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
+        taskId: 4,
         name: 'Попасть в onix team',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '01/31/2022',
-        completed: false,
+        completionDate: new Date('01/31/2022'),
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
       {
+        taskId: 5,
         name: 'Получить offer',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '01/15/2022',
-        completed: false,
+        completionDate: new Date('01/15/2022'),
         show: false,
         status: StatusEnum.Done,
-        // status: 'done',
       },
       {
+        taskId: 6,
         name: 'Пройти испытательный срок',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '04/15/2022',
-        completed: false,
+        completionDate: new Date('04/15/2022'),
         show: false,
         status: StatusEnum.Done,
-        // status: 'done',
       },
       {
+        taskId: 7,
         name: 'Договориться о высокой ЗП',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '01/10/2022',
-        completed: false,
+        completionDate: new Date('01/10/2022'),
         show: false,
         status: StatusEnum.Inprogress,
-        // status: 'inprogress',
       },
       {
+        taskId: 8,
         name: 'Полноценно приступить к работе',
         desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-        completionDate: '02/10/2022',
-        completed: false,
+        completionDate: new Date('02/10/2022'),
         show: false,
         status: StatusEnum.Todo,
-        // status: 'todo',
       },
     ];
   },
