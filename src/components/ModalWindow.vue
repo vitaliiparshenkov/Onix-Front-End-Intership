@@ -65,14 +65,12 @@ export default defineComponent({
 
 .modal {
   background: #fff;
-  /*border-radius: 8px;*/
   padding: 15px;
   min-width: 400px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /*overflow: hidden;*/
 
   &-close {
     color: #fff;

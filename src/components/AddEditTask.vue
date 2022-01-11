@@ -46,7 +46,6 @@ export default defineComponent({
     };
   },
 
-  // name: 'kanban',
   components: {
     datepicker: Datepicker,
   },
@@ -114,24 +113,23 @@ export default defineComponent({
 
   computed: {
     buttonCaption() {
-      if (this.statusOper == StatusOperation.Edit) {
-        return StatusOperation[1];
+      switch (this.statusOper) {
+        case StatusOperation.Edit:
+          return StatusOperation[1];
+
+        case StatusOperation.Cancel:
+          return StatusOperation[2];
+
+        case StatusOperation.Save:
+          return StatusOperation[3];
+
+        default:
+          return StatusOperation[0];
       }
-      if (this.statusOper == StatusOperation.Cancel) {
-        return StatusOperation[2];
-      }
-      if (this.statusOper == StatusOperation.Save) {
-        return StatusOperation[3];
-      }
-      return StatusOperation[0];
     },
 
     isStatusOperationAdd() {
-      if (this.statusOper == StatusOperation.Add) {
-        return true;
-      } else {
-        return false;
-      }
+      return this.statusOper == StatusOperation.Add;
     },
   },
 });
