@@ -14,13 +14,13 @@ form#search(@submit.prevent="onSubmitSearch")
       i.fas.fa-search
 
 .serchDateBox(:class="{hide: serchDateBoxHide}")
-  datepicker(v-model="date" range position="right" closeOnScroll autoApply placeholder="Select Date")
+  datepicker(v-model="date" range position="right" closeOnScroll autoApply placeholder="Select Date" :format="format")
 
 .flex-container
   .todo(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
     h2.header-box To Do
       p.header-box-count -&nbsp;{{getCountTodoStatus('todo')}}&nbsp;-
-    .task-box(v-for="(todo, todoId) of getTodoType('todo')" :key="todo" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(todo)")
+    .task-box(v-for="(todo, todoId) of getTodoType('todo')" :key="todo" :class="getClassDependentOn(todo.status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(todo)")
       i.status.fas(:class="getClassStatus(todo.completionDate)")
       p.name.deadline- {{ todo.name }}
       strong
@@ -30,7 +30,7 @@ form#search(@submit.prevent="onSubmitSearch")
   .inprogress(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
     h2.header-box In Progress
       p.header-box-count -&nbsp;{{getCountTodoStatus('inprogress')}}&nbsp;-
-    .task-box(v-for="(inprogress, inprogressId) of getTodoType('inprogress')" :key="inprogress" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(inprogress)")
+    .task-box(v-for="(inprogress, inprogressId) of getTodoType('inprogress')" :key="inprogress" :class="getClassDependentOn(inprogress.status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(inprogress)")
       i.status.fas(:class="getClassStatus(inprogress.completionDate)")
       p.name {{ inprogress.name }}
       strong
@@ -40,12 +40,12 @@ form#search(@submit.prevent="onSubmitSearch")
   .done(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
     h2.header-box Done
       p.header-box-count -&nbsp;{{getCountTodoStatus('done')}}&nbsp;-
-    .task-box(v-for="(done, doneId) of getTodoType('done')" :key="done" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(done)")
+    .task-box(v-for="(done, doneId) of getTodoType('done')" :key="done" :class="getClassDependentOn(done.status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(done)")
       i.status.far.fa-calendar-check
       p.name.lastday- {{ done.name }}
       strong
         time(datetime="2010-07-26T23:42+03:00") {{ done.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(done)")
+      <!--i.modify.fas.fa-pen(@click="modifyTask(done)")-->
 </template>
 
 <script lang="ts">
@@ -72,7 +72,20 @@ export default defineComponent({
       serchDateBoxHide: true,
       changeTask: {} as TodoInterface,
       changeTaskId: -1,
-    };
+
+      format(date: any) {
+        const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
+        const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1): date[0].getMonth() + 1;
+        const yearStart = date[0].getFullYear();
+
+        const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
+        const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1): date[1].getMonth() + 1;
+        const yearEnd = date[1].getFullYear();
+
+          return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
+      },
+
+    }
   },
 
   name: 'kanban',
@@ -131,10 +144,22 @@ export default defineComponent({
       }
     },
 
+    getClassDependentOn(status: StatusEnum): string {
+      switch (status) {
+        case StatusEnum.Todo:
+          return 'to-do';
+        case StatusEnum.Inprogress:
+          return 'in-progress';
+        case StatusEnum.Done:
+          return 'do-ne';
+      }
+    },
+
     onSubmitSearch() {
       if (this.date.length != 0) {
         this.todoList = this.todoListGlobal.filter(
-          (el: TodoInterface) =>  el.name.toLocaleLowerCase().includes(this.search.toLowerCase()) && el.completionDate >= this.date[0] && el.completionDate <= this.date[1]
+          (el: TodoInterface) =>  el.name.toLocaleLowerCase().includes(this.search.toLowerCase()) &&
+            (el.completionDate >= new Date(this.getDateInStringFormat(this.date[0])) && el.completionDate <= new Date(this.getDateInStringFormat(this.date[1])))
         );
       } else {
         this.todoList = this.todoListGlobal.filter((el: TodoInterface) => el.name.toLocaleLowerCase().includes(this.search.toLowerCase()));
@@ -197,6 +222,10 @@ export default defineComponent({
 
   created() {
     this.todoList = this.todoListGlobal;
+  },
+
+  mounted() {
+    this.onSubmitSearch();
   },
 
   beforeUnmount() {
@@ -373,6 +402,8 @@ export default defineComponent({
       border-radius: 3px;
       cursor: move;
       transition: 0.3s ease-out;
+      box-shadow: 0 4px 0 0 rgba(0,0,0,0.3);
+      overflow: hidden;
 
       i.modify {
         position: absolute;
@@ -428,6 +459,35 @@ export default defineComponent({
 
       &:hover {
         background-color: #fff8dd;
+      }
+    }
+
+    .to-do {
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3), 1px 1px 5px rgba(255, 255, 255, 1);
+    }
+
+    .in-progress {
+      /*clip-path: polygon(30px 0%, 100% 0%, 100% 100%, 30px 100%, 0 50%);*/
+      /*background: white;*/
+      /*background:linear-gradient(-150deg, #58a 23px, white 0);*/
+    }
+
+    .do-ne{
+      /*background: white;*/
+      /*background:linear-gradient(-45deg, #58a 15px, white 0);*/
+
+      &:before{
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-bottom: 21px solid #58a;
+        border-left: 21px solid transparent;
+        -webkit-box-shadow: 7px 7px 7px rgba(0,0,0,0.3);
+        -moz-box-shadow: 7px 7px 7px rgba(0,0,0,0.3);
+        box-shadow: 7px 7px 7px rgba(0,0,0,0.3);
       }
     }
   }

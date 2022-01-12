@@ -31,6 +31,7 @@ form(@submit.prevent="onSubmit")
 import {defineComponent} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
 import Datepicker from 'vue3-datepicker';
+import dateInStringFormat from '@/mixins/dateInStringFormat';
 // import Datepicker from 'vue3-date-time-picker';
 // import 'vue3-date-time-picker/dist/main.css';
 export default defineComponent({
@@ -51,6 +52,8 @@ export default defineComponent({
   },
 
   props: ['modifyTask'],
+
+  mixins: [dateInStringFormat],
 
   emits: {
     'save-task': null,
@@ -90,7 +93,7 @@ export default defineComponent({
         taskId: -1,
         name: '',
         desc: '',
-        completionDate: new Date(),
+        completionDate: new Date(this.getDateInStringFormat(new Date())),
         completed: false,
         show: false,
         status: StatusEnum.Todo,
