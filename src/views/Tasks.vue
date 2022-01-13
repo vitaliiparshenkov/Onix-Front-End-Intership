@@ -53,7 +53,6 @@ export default defineComponent({
     };
   },
 
-  // name: 'tasks',
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
@@ -129,7 +128,6 @@ export default defineComponent({
     // console.log('beforeCreate()');
   },
   created: function () {
-    // console.log('created()');
     this.todoList = this.todoListGlobal;
   },
   beforeMount() {
@@ -139,6 +137,8 @@ export default defineComponent({
     // console.log('mounted()');
     this.removeClass('blink');
     this.goByElem();
+    console.log('todoListGlobal mounted Task \n',this.todoListGlobal);
+    console.log('todoList mounted Task \n',this.todoList);
   },
   beforeUpdate() {
     // console.log('beforeUpdate()');
@@ -149,6 +149,7 @@ export default defineComponent({
   beforeUnmount() {
     // console.log('beforeUnmount()');
     this.$emit('todoListGlobalUpdate', this.todoList);
+    console.log('todoList beforeUnmount Task \n',this.todoList, '============================================\n');
   },
   unmounted() {
     // console.log('unmounted()');

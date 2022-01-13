@@ -88,7 +88,6 @@ export default defineComponent({
     }
   },
 
-  name: 'kanban',
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
@@ -108,9 +107,12 @@ export default defineComponent({
     saveTask(task: TodoInterface): void {
       this.todoList[this.changeTaskId] = task;
       this.closeModalWindow();
+      // console.log(task);
+      // console.log({...task});
     },
 
     modifyTask(task: TodoInterface) {
+      console.log({...task});
       this.changeTask = task;
       this.changeTaskId = this.todoList.indexOf(task);
       this.isOpenModal = true;
@@ -164,6 +166,7 @@ export default defineComponent({
       } else {
         this.todoList = this.todoListGlobal.filter((el: TodoInterface) => el.name.toLocaleLowerCase().includes(this.search.toLowerCase()));
       }
+      console.log('Другой формат вывода',this.todoList);
     },
 
     onClearInputSearch() {
@@ -221,15 +224,26 @@ export default defineComponent({
   },
 
   created() {
+    // console.log(this.todoList);
+    // console.log(this.todoListGlobal);
     this.todoList = this.todoListGlobal;
+    console.log(this.todoList);
+    console.log(this.todoListGlobal);
+    console.log('\n--------------------------');
   },
 
   mounted() {
     this.onSubmitSearch();
+    // this.todoList = this.todoListGlobal;
+    // console.log('todoListGlobal mounted Kanban \n',this.todoListGlobal);
+    // console.log('todoList mounted Kanban \n',this.todoList);
   },
 
   beforeUnmount() {
+    // console.log('todoList mounted Kanban \n',this.todoList, '============================================\n');
     this.$emit('todoListGlobalUpdate', this.todoList);
+    // this.todoList = this.todoListGlobal;
+    // this.onSubmitSearch();
   },
 
   watch: {
@@ -245,19 +259,6 @@ export default defineComponent({
     }
   },
 
-  computed: {
-    // getTodo() {
-    //   return this.todoList.filter((el) => el.status === 'todo');
-    // },
-    //
-    // getInprogress() {
-    //   return this.todoList.filter((el) => el.status === 'inprogress');
-    // },
-    //
-    // getDone() {
-    //   return this.todoList.filter((el) => el.status === 'done');
-    // },
-  },
 });
 </script>
 
