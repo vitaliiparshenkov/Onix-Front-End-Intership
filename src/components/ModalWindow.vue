@@ -4,12 +4,10 @@
     .modal-close(@click="closeModalWindow") &#10006;
     .modal-title
       slot(name="title")
-        <!--h2 Header-->
     .modal-content
       slot(name="body")
     .modal-footer
       slot(name="footer")
-        <!--button(@click="closeModal") Action-->
 </template>
 
 <script lang="ts">

@@ -1,7 +1,7 @@
 <template lang="pug">
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
-    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task="changeTask")
+    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId" :todoListGlobal="todoListGlobal")
 
 form#search(@submit.prevent="onSubmitSearch")
   input(type="search" v-model="search" placeholder="Search here...")
@@ -17,35 +17,17 @@ form#search(@submit.prevent="onSubmitSearch")
   datepicker(v-model="date" range position="right" closeOnScroll autoApply placeholder="Select Date" :format="format")
 
 .flex-container
-  .todo(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
-    h2.header-box To Do
-      p.header-box-count -&nbsp;{{getCountTodoStatus('todo')}}&nbsp;-
-    .task-box(v-for="(todo, todoId) of getTodoType('todo')" :key="todo" :class="getClassDependentOn(todo.status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(todo)")
-      i.status.fas(:class="getClassStatus(todo.completionDate)")
-      p.name.deadline- {{ todo.name }}
+  div(v-for="status in StatusEnum" :class="status" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
+    h2.header-box {{status}}
+      p.header-box-count -&nbsp;{{getCountTodoStatus(status)}}&nbsp;-
+    .task-box(v-for="(todo, todoId) of getTodoType(status)" :key="todo" :class="getClassDependentOn(status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoListGlobal.indexOf(todo)")
+      i.status.fas(:class="getClassStatus(todo.completionDate)" v-if="status != StatusEnum.Done")
+      i.status.far.fa-calendar-check(v-else)
+      p.name {{ todo.name }}
       strong
         time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(todo)")
+      i.modify.fas.fa-pen(@click="modifyTask(todoListGlobal.indexOf(todo))" v-if="status != StatusEnum.Done")
 
-  .inprogress(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
-    h2.header-box In Progress
-      p.header-box-count -&nbsp;{{getCountTodoStatus('inprogress')}}&nbsp;-
-    .task-box(v-for="(inprogress, inprogressId) of getTodoType('inprogress')" :key="inprogress" :class="getClassDependentOn(inprogress.status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(inprogress)")
-      i.status.fas(:class="getClassStatus(inprogress.completionDate)")
-      p.name {{ inprogress.name }}
-      strong
-        time(datetime="2010-07-26T23:42+03:00") {{ inprogress.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(inprogress)")
-
-  .done(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
-    h2.header-box Done
-      p.header-box-count -&nbsp;{{getCountTodoStatus('done')}}&nbsp;-
-    .task-box(v-for="(done, doneId) of getTodoType('done')" :key="done" :class="getClassDependentOn(done.status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(done)")
-      i.status.far.fa-calendar-check
-      p.name.lastday- {{ done.name }}
-      strong
-        time(datetime="2010-07-26T23:42+03:00") {{ done.completionDate.toString().substr(4, 11) }}
-      <!--i.modify.fas.fa-pen(@click="modifyTask(done)")-->
 </template>
 
 <script lang="ts">
@@ -54,8 +36,6 @@ import {TodoInterface, StatusEnum} from '@/types/task.interface';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-
-// import Datepicker from 'vue3-datepicker';
 import Datepicker from 'vue3-date-time-picker';
 import 'vue3-date-time-picker/dist/main.css';
 
@@ -64,34 +44,31 @@ let todoId = -1;
 export default defineComponent({
   data() {
     return {
+      StatusEnum,
       date: [],
       search: '',
       filterSelect: 'all',
-      todoList: [] as TodoInterface[],
       isOpenModal: false,
       serchDateBoxHide: true,
-      changeTask: {} as TodoInterface,
-      changeTaskId: -1,
-
+      modifyTaskId: -1,
       format(date: any) {
         const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
-        const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1): date[0].getMonth() + 1;
+        const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
         const yearStart = date[0].getFullYear();
 
         const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
-        const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1): date[1].getMonth() + 1;
+        const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1) : date[1].getMonth() + 1;
         const yearEnd = date[1].getFullYear();
 
-          return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
+        return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
       },
-
-    }
+    };
   },
 
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
-    'datepicker': Datepicker,
+    datepicker: Datepicker,
   },
 
   props: ['todoListGlobal'],
@@ -99,37 +76,34 @@ export default defineComponent({
   mixins: [dateInStringFormat],
 
   emits: {
-    todoListGlobalUpdate: null,
     'change-notifis': null,
+    'remove-task': null,
+    'save-task': null,
   },
 
   methods: {
-    saveTask(task: TodoInterface): void {
-      this.todoList[this.changeTaskId] = task;
-      this.closeModalWindow();
-      // console.log(task);
-      // console.log({...task});
+    modifyTask(taskId: number) {
+      this.modifyTaskId = taskId;
+      this.isOpenModal = true;
     },
 
-    modifyTask(task: TodoInterface) {
-      console.log({...task});
-      this.changeTask = task;
-      this.changeTaskId = this.todoList.indexOf(task);
-      this.isOpenModal = true;
+    saveTask(task: TodoInterface): void {
+      this.$emit('save-task', task);
+      this.closeModalWindow();
     },
 
     closeModalWindow() {
       this.isOpenModal = false;
-      this.changeTask = {} as TodoInterface;
-      this.changeTaskId = -1;
+      this.modifyTaskId = -1;
     },
 
     getTodoType(status: string) {
-      return this.todoList.filter((el) => el.status === status);
+      // return this.todoListGlobal.filter((el: TodoInterface) => el.status === status);
+      return this.onSubmitSearch().filter((el: TodoInterface) => el.status === status);
     },
 
     getCountTodoStatus(status: string) {
-      return this.todoList.filter((el) => el.status === status).length;
+      return this.todoListGlobal.filter((el: TodoInterface) => el.status === status).length;
     },
 
     getClassStatus(date_: any): string {
@@ -159,14 +133,13 @@ export default defineComponent({
 
     onSubmitSearch() {
       if (this.date.length != 0) {
-        this.todoList = this.todoListGlobal.filter(
-          (el: TodoInterface) =>  el.name.toLocaleLowerCase().includes(this.search.toLowerCase()) &&
+        return this.todoListGlobal.filter(
+          (el: TodoInterface) =>  el.name.toLowerCase().includes(this.search.toLowerCase()) &&
             (el.completionDate >= new Date(this.getDateInStringFormat(this.date[0])) && el.completionDate <= new Date(this.getDateInStringFormat(this.date[1])))
         );
       } else {
-        this.todoList = this.todoListGlobal.filter((el: TodoInterface) => el.name.toLocaleLowerCase().includes(this.search.toLowerCase()));
+        return this.todoListGlobal.filter((el: TodoInterface) => el.name.toLowerCase().includes(this.search.toLowerCase()));
       }
-      console.log('Другой формат вывода',this.todoList);
     },
 
     onClearInputSearch() {
@@ -188,29 +161,26 @@ export default defineComponent({
       event.target.classList.remove('hide');
     },
 
-    dragEnter(event: any) {
-      // event.currentTarget.classList.add('hovered');
-    },
-
-    dragLeave(event: any) {
-      // event.currentTarget.classList.remove('hovered');
-    },
-
     dragDrop(event: any) {
       event.preventDefault();
       const zone = event.currentTarget.className;
       if (todoId != -1 && zone) {
+        let changesObject = this.todoListGlobal[todoId];
+        changesObject.globalId = todoId;
         switch (zone) {
           case StatusEnum.Todo:
-            if (this.todoList[todoId].status != StatusEnum.Done) {
-              this.todoList[todoId].status = StatusEnum.Todo;
+            if (this.todoListGlobal[todoId].status != StatusEnum.Done) {
+              changesObject.status = StatusEnum.Todo;
+              this.saveTask(changesObject);
             }
             break;
           case StatusEnum.Inprogress:
-            this.todoList[todoId].status = StatusEnum.Inprogress;
+            changesObject.status = StatusEnum.Inprogress;
+            this.saveTask(changesObject);
             break;
           case StatusEnum.Done:
-            this.todoList[todoId].status = StatusEnum.Done;
+            changesObject.status = StatusEnum.Done;
+            this.saveTask(changesObject);
             break;
         }
       }
@@ -223,29 +193,6 @@ export default defineComponent({
     },
   },
 
-  created() {
-    // console.log(this.todoList);
-    // console.log(this.todoListGlobal);
-    this.todoList = this.todoListGlobal;
-    console.log(this.todoList);
-    console.log(this.todoListGlobal);
-    console.log('\n--------------------------');
-  },
-
-  mounted() {
-    this.onSubmitSearch();
-    // this.todoList = this.todoListGlobal;
-    // console.log('todoListGlobal mounted Kanban \n',this.todoListGlobal);
-    // console.log('todoList mounted Kanban \n',this.todoList);
-  },
-
-  beforeUnmount() {
-    // console.log('todoList mounted Kanban \n',this.todoList, '============================================\n');
-    this.$emit('todoListGlobalUpdate', this.todoList);
-    // this.todoList = this.todoListGlobal;
-    // this.onSubmitSearch();
-  },
-
   watch: {
     search() {
       this.onSubmitSearch();
@@ -256,9 +203,8 @@ export default defineComponent({
         this.date = [];
       }
       this.onSubmitSearch();
-    }
+    },
   },
-
 });
 </script>
 
@@ -297,9 +243,8 @@ export default defineComponent({
   }
 
   .dp__main {
-
     .dp__input {
-      font-family: "Helvetica", Arial, sans-serif;
+      font-family: 'Helvetica', Arial, sans-serif;
       font-size: 13px;
       border: none;
     }
@@ -403,7 +348,7 @@ export default defineComponent({
       border-radius: 3px;
       cursor: move;
       transition: 0.3s ease-out;
-      box-shadow: 0 4px 0 0 rgba(0,0,0,0.3);
+      box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.3);
       overflow: hidden;
 
       i.modify {
@@ -448,14 +393,6 @@ export default defineComponent({
         border-bottom: 1px solid rgb(133, 133, 133);
         text-indent: 22px;
         line-height: 16px;
-
-        &.deadline {
-          border-bottom: 2px solid red;
-        }
-
-        &.lastday {
-          border-bottom: 2px solid #ffc200;
-        }
       }
 
       &:hover {
@@ -473,12 +410,12 @@ export default defineComponent({
       /*background:linear-gradient(-150deg, #58a 23px, white 0);*/
     }
 
-    .do-ne{
+    .do-ne {
       /*background: white;*/
       /*background:linear-gradient(-45deg, #58a 15px, white 0);*/
 
-      &:before{
-        content: "";
+      &:before {
+        content: '';
         position: absolute;
         bottom: 0;
         right: 0;
@@ -486,9 +423,9 @@ export default defineComponent({
         height: 0;
         border-bottom: 21px solid #58a;
         border-left: 21px solid transparent;
-        -webkit-box-shadow: 7px 7px 7px rgba(0,0,0,0.3);
-        -moz-box-shadow: 7px 7px 7px rgba(0,0,0,0.3);
-        box-shadow: 7px 7px 7px rgba(0,0,0,0.3);
+        -webkit-box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.3);
+        box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.3);
       }
     }
   }

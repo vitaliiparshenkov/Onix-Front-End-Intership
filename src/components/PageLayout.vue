@@ -7,7 +7,7 @@ div(:class="['wrapper', {lock: showStats}]" @lockWrapper="showStats = $event")
 		.content
 			TheHeader
 			main
-				router-view(@change-notifis="notifications = $event" :todoListGlobal="todoListGlobal" @todoListGlobalUpdate="todoListGlobal = $event")
+				router-view(@change-notifis="notifications = $event" :todoListGlobal="todoListGlobal" @remove-task="removeTask" @save-task="saveTask")
 </template>
 
 <script lang="ts">
@@ -30,6 +30,27 @@ export default defineComponent({
   components: {
     TheSidebar,
     TheHeader,
+  },
+
+  methods: {
+    saveTask(task: TodoInterface): void {
+      if (task.taskId == -1) {
+        let newId = this.todoListGlobal.length;
+        while (this.todoListGlobal.findIndex((t) => t.taskId == newId) != -1) {
+          newId++;
+        }
+        task.taskId = newId;
+        this.todoListGlobal.push(task);
+      } else {
+        const globalId: any = task.globalId;
+        delete task.globalId;
+        this.todoListGlobal[globalId] = task;
+      }
+    },
+
+    removeTask(i: number): void {
+      this.todoListGlobal.splice(i, 1);
+    },
   },
 
   created() {

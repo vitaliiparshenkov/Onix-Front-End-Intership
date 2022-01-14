@@ -32,8 +32,7 @@ import {defineComponent} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
 import Datepicker from 'vue3-datepicker';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
-// import Datepicker from 'vue3-date-time-picker';
-// import 'vue3-date-time-picker/dist/main.css';
+
 export default defineComponent({
   data() {
     return {
@@ -51,7 +50,7 @@ export default defineComponent({
     datepicker: Datepicker,
   },
 
-  props: ['modifyTask'],
+  props: ['modifyTaskId', 'todoListGlobal'],
 
   mixins: [dateInStringFormat],
 
@@ -64,7 +63,7 @@ export default defineComponent({
     onSubmit() {
       //-- Edit -----
       if (this.isDisable) {
-        if (this.modifyTask.status != StatusEnum.Done) {
+        if (this.changeRecord.status != StatusEnum.Done) {
           this.isDisable = false;
           this.statusOper = StatusOperation.Cancel;
         } else {
@@ -84,8 +83,9 @@ export default defineComponent({
   },
 
   created() {
-    if (Object.keys(this.modifyTask).length != 0) {
-      this.changeRecord = {...this.modifyTask};
+    if (this.modifyTaskId != -1) {
+      this.changeRecord = {...this.todoListGlobal[this.modifyTaskId]};
+      this.changeRecord.globalId = this.modifyTaskId;
       this.isDisable = true;
       this.statusOper = StatusOperation.Edit;
     } else {

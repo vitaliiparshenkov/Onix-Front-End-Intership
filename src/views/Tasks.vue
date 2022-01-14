@@ -1,30 +1,29 @@
 <template lang="pug">
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
-    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task="changeTask")
+    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId" :todoListGlobal="todoListGlobal")
 
 div.task-header-container
   h1.todo-list Todo List
   button.add-new-task(@click="isOpenModal = true" :class="{active: isOpenModal}")
     i.fas.fa-plus
 hr
-transition-group(tag="ul" name="list-complete" v-if="todoList.length")
-  li(v-for="(todo, taskId) of todoList" :key="todo" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
+transition-group(tag="ul" name="list-complete" v-if="todoListGlobal.length")
+  li(v-for="(task, taskId) of todoListGlobal" :key="task" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
-      span.task(:class="{done: todo.status === 'done'}" @click.prevent="modifyTask(todo)")
-        input(type="checkbox" @change="todo.completed = !todo.completed" :id="`task-${taskId}`" :checked="todo.status === 'done'")
+      span.task(:class="{done: isTodoStatusDone(task.status)}" @click.prevent="modifyTask(taskId)")
+        input(type="checkbox" @change="task.completed = !task.completed" :id="`task-${taskId}`" :checked="isTodoStatusDone(task.status)")
         label(:for="`task-${taskId}`")
-          strong() {{ todo.name }}&ensp;
-          time(datetime="2010-07-26T23:42+03:00") ({{ getDateInStringFormat(todo.completionDate) }})
-          <!--time(datetime="2010-07-26T23:42+03:00") ({{ todo.completionDate }})-->
-          i(v-if="todo.status === 'todo'") &ensp;:Todo
-          i(v-else-if="todo.status === 'inprogress'") &ensp;:Inprogress
-          i(v-else="todo.status === 'done'") &ensp;:Done
+          strong() {{ task.name }}&ensp;
+          time(datetime="2010-07-26T23:42+03:00") ({{ getDateInStringFormat(task.completionDate) }})
+          i(v-if="task.status === StatusEnum.Todo") &ensp;:Todo
+          i(v-else-if="task.status === StatusEnum.Inprogress") &ensp;:Inprogress
+          i(v-else="task.status === StatusEnum.Done") &ensp;:Done
       span.panel
-        button.watch(@click="todo.show = !todo.show") &#128269;
+        button.watch(@click="task.show = !task.show") &#128269;
         button.delete(@click="removeTask(taskId)") &times;
-    div(:class="['desc', {completed: todo.status === 'done'}]" v-show="todo.show")
-      |{{ todo.desc }}
+    div(:class="['desc', {completed: isTodoStatusDone(task.status)}]" v-show="task.show")
+      |{{ task.desc }}
 div(v-else)
   hr
   h3(class="noTasks") No tasks!
@@ -32,24 +31,19 @@ div(v-else)
 
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
-import {TodoInterface} from '@/types/task.interface';
+import {TodoInterface, StatusEnum} from '@/types/task.interface';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
+// import {mapState} from 'vuex';
 
 export default defineComponent({
-  // setup() {
-  // const elList = ref([]);
-  // return {elList};
-  // },
-
   data() {
     return {
-      todoList: [] as TodoInterface[],
+      StatusEnum,
       elList: ref([]),
       isOpenModal: false,
-      changeTask: {} as TodoInterface,
-      changeTaskId: -1,
+      modifyTaskId: -1,
     };
   },
 
@@ -63,41 +57,31 @@ export default defineComponent({
   mixins: [dateInStringFormat],
 
   emits: {
-    todoListGlobalUpdate: null,
     'change-notifis': null,
+    'remove-task': null,
+    'save-task': null,
   },
 
   methods: {
+    modifyTask(taskId: number) {
+      this.modifyTaskId = taskId;
+      this.isOpenModal = true;
+    },
+
     saveTask(task: TodoInterface): void {
-      if (task.taskId == -1) {
-        let newId = this.todoList.length;
-        while (this.todoList.findIndex((t) => t.taskId == newId) != -1) {
-          newId++;
-        }
-        task.taskId = newId;
-        this.todoList.push(task);
-      } else {
-        this.todoList[this.changeTaskId] = task;
-      }
+      this.$emit('save-task', task);
       setTimeout(this.removeClass, 3000, 'blink');
       this.closeModalWindow();
     },
 
-    modifyTask(task: TodoInterface) {
-      this.changeTask = task;
-      this.changeTaskId = this.todoList.indexOf(task);
-      this.isOpenModal = true;
-    },
-
     removeTask(i: number): void {
-      this.todoList.splice(i, 1);
+      this.$emit('remove-task', i);
     },
 
     closeModalWindow() {
       this.isOpenModal = false;
-      if (this.changeTaskId != -1) {
-        this.changeTask = {} as TodoInterface;
-        this.changeTaskId = -1;
+      if (this.modifyTaskId != -1) {
+        this.modifyTaskId = -1;
       }
     },
 
@@ -122,37 +106,37 @@ export default defineComponent({
         }
       }
     },
+
+    isTodoStatusDone(status: StatusEnum): boolean {
+      if (status === StatusEnum.Done) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 
-  beforeCreate() {
-    // console.log('beforeCreate()');
-  },
-  created: function () {
-    this.todoList = this.todoListGlobal;
-  },
-  beforeMount() {
-    // console.log('beforeMount()');
-  },
   mounted() {
     // console.log('mounted()');
     this.removeClass('blink');
     this.goByElem();
-    console.log('todoListGlobal mounted Task \n',this.todoListGlobal);
-    console.log('todoList mounted Task \n',this.todoList);
   },
-  beforeUpdate() {
-    // console.log('beforeUpdate()');
-  },
-  updated() {
-    // console.log('updated()');
-  },
-  beforeUnmount() {
-    // console.log('beforeUnmount()');
-    this.$emit('todoListGlobalUpdate', this.todoList);
-    console.log('todoList beforeUnmount Task \n',this.todoList, '============================================\n');
-  },
-  unmounted() {
-    // console.log('unmounted()');
+
+  computed: {
+    //--- 1 variant
+    // ...mapState(['todoList']),
+
+    //--- 2 variant
+    // ...mapState({
+    //   todoList(state: any): any {
+    //     return state.todoList;
+    //   },
+    // }),
+
+    //--- 3 variant
+    // todoList(): any {
+    //   return this.$store.state.todoList;
+    // },
   },
 });
 </script>
