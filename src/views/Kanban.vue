@@ -1,36 +1,33 @@
 <template lang="pug">
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
-    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task="changeTask")
+    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId" :todoListGlobal="todoListGlobal")
+
+form#search(@submit.prevent="onSubmitSearch")
+  input(type="search" v-model="search" placeholder="Search here...")
+  .group-btn
+    button.clear(type="button" @click="onClearInputSearch")
+      i.fas.fa-times
+    button.month(type="button" @click="showDateString")
+      i.far.fa-calendar-alt
+    button.search
+      i.fas.fa-search
+
+.serchDateBox(:class="{hide: serchDateBoxHide}")
+  datepicker(v-model="date" range position="right" closeOnScroll autoApply placeholder="Select Date" :format="format")
 
 .flex-container
-  .todo(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
-    h2.header-box To Do
-      p.header-box-count -&nbsp;{{getCountTodoStatus('todo')}}&nbsp;-
-    .task-box(v-for="(todo, todoId) of getTodoType('todo')" :key="todo" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(todo)")
-      i.status.fas.fa-hourglass-end
-      p.name.deadline {{ todo.name }}
+  div(v-for="status in StatusEnum" :class="status" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
+    h2.header-box {{status}}
+      p.header-box-count -&nbsp;{{getCountTodoStatus(status)}}&nbsp;-
+    .task-box(v-for="(todo, todoId) of getTodoType(status)" :key="todo" :class="getClassDependentOn(status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoListGlobal.indexOf(todo)")
+      i.status.fas(:class="getClassStatus(todo.completionDate)" v-if="status != StatusEnum.Done")
+      i.status.far.fa-calendar-check(v-else)
+      p.name {{ todo.name }}
       strong
         time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(todo)")
-  .inprogress(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
-    h2.header-box In Progress
-      p.header-box-count -&nbsp;{{getCountTodoStatus('inprogress')}}&nbsp;-
-    .task-box(v-for="(inprogress, inprogressId) of getTodoType('inprogress')" :key="inprogress" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(inprogress)")
-      i.status.fas.fa-calendar-alt
-      p.name {{ inprogress.name }}
-      strong
-        time(datetime="2010-07-26T23:42+03:00") {{ inprogress.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(inprogress)")
-  .done(@dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
-    h2.header-box Done
-      p.header-box-count -&nbsp;{{getCountTodoStatus('done')}}&nbsp;-
-    .task-box(v-for="(done, doneId) of getTodoType('done')" :key="done" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(done)")
-      i.status.fas.fa-calendar-day
-      p.name.lastday {{ done.name }}
-      strong
-        time(datetime="2010-07-26T23:42+03:00") {{ done.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(done)")
+      i.modify.fas.fa-pen(@click="modifyTask(todoListGlobal.indexOf(todo))" v-if="status != StatusEnum.Done")
+
 </template>
 
 <script lang="ts">
@@ -39,24 +36,39 @@ import {TodoInterface, StatusEnum} from '@/types/task.interface';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
+import Datepicker from 'vue3-date-time-picker';
+import 'vue3-date-time-picker/dist/main.css';
 
 let todoId = -1;
 
 export default defineComponent({
   data() {
     return {
+      StatusEnum,
+      date: [],
+      search: '',
       filterSelect: 'all',
-      todoList: [] as TodoInterface[],
       isOpenModal: false,
-      changeTask: {} as TodoInterface,
-      changeTaskId: -1,
+      serchDateBoxHide: true,
+      modifyTaskId: -1,
+      format(date: any) {
+        const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
+        const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
+        const yearStart = date[0].getFullYear();
+
+        const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
+        const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1) : date[1].getMonth() + 1;
+        const yearEnd = date[1].getFullYear();
+
+        return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
+      },
     };
   },
 
-  name: 'kanban',
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
+    datepicker: Datepicker,
   },
 
   props: ['todoListGlobal'],
@@ -64,34 +76,78 @@ export default defineComponent({
   mixins: [dateInStringFormat],
 
   emits: {
-    todoListGlobalUpdate: null,
     'change-notifis': null,
+    'remove-task': null,
+    'save-task': null,
   },
 
   methods: {
-    saveTask(task: TodoInterface): void {
-      this.todoList[this.changeTaskId] = task;
-      this.closeModalWindow();
+    modifyTask(taskId: number) {
+      this.modifyTaskId = taskId;
+      this.isOpenModal = true;
     },
 
-    modifyTask(task: TodoInterface) {
-      this.changeTask = task;
-      this.changeTaskId = this.todoList.indexOf(task);
-      this.isOpenModal = true;
+    saveTask(task: TodoInterface): void {
+      this.$emit('save-task', task);
+      this.closeModalWindow();
     },
 
     closeModalWindow() {
       this.isOpenModal = false;
-      this.changeTask = {} as TodoInterface;
-      this.changeTaskId = -1;
+      this.modifyTaskId = -1;
     },
 
     getTodoType(status: string) {
-      return this.todoList.filter((el) => el.status === status);
+      // return this.todoListGlobal.filter((el: TodoInterface) => el.status === status);
+      return this.onSubmitSearch().filter((el: TodoInterface) => el.status === status);
     },
 
     getCountTodoStatus(status: string) {
-      return this.todoList.filter((el) => el.status === status).length;
+      return this.todoListGlobal.filter((el: TodoInterface) => el.status === status).length;
+    },
+
+    getClassStatus(date_: any): string {
+      const currentDate = Date.now();
+      const completionDate = new Date(date_);
+      if (currentDate > completionDate.getTime()) {
+        return 'fa-hourglass-end';
+      } else {
+        if (completionDate.getTime() - currentDate <= 86400000) {
+          return 'fa-calendar-day';
+        } else {
+          return 'fa-calendar-alt';
+        }
+      }
+    },
+
+    getClassDependentOn(status: StatusEnum): string {
+      switch (status) {
+        case StatusEnum.Todo:
+          return 'to-do';
+        case StatusEnum.Inprogress:
+          return 'in-progress';
+        case StatusEnum.Done:
+          return 'do-ne';
+      }
+    },
+
+    onSubmitSearch() {
+      if (this.date.length != 0) {
+        return this.todoListGlobal.filter(
+          (el: TodoInterface) =>  el.name.toLowerCase().includes(this.search.toLowerCase()) &&
+            (el.completionDate >= new Date(this.getDateInStringFormat(this.date[0])) && el.completionDate <= new Date(this.getDateInStringFormat(this.date[1])))
+        );
+      } else {
+        return this.todoListGlobal.filter((el: TodoInterface) => el.name.toLowerCase().includes(this.search.toLowerCase()));
+      }
+    },
+
+    onClearInputSearch() {
+      this.search = '';
+    },
+
+    showDateString() {
+      this.serchDateBoxHide = !this.serchDateBoxHide;
     },
 
     dragStart(event: any) {
@@ -105,29 +161,26 @@ export default defineComponent({
       event.target.classList.remove('hide');
     },
 
-    dragEnter(event: any) {
-      // event.currentTarget.classList.add('hovered');
-    },
-
-    dragLeave(event: any) {
-      // event.currentTarget.classList.remove('hovered');
-    },
-
     dragDrop(event: any) {
       event.preventDefault();
       const zone = event.currentTarget.className;
       if (todoId != -1 && zone) {
+        let changesObject = this.todoListGlobal[todoId];
+        changesObject.globalId = todoId;
         switch (zone) {
           case StatusEnum.Todo:
-            if (this.todoList[todoId].status != StatusEnum.Done) {
-              this.todoList[todoId].status = StatusEnum.Todo;
+            if (this.todoListGlobal[todoId].status != StatusEnum.Done) {
+              changesObject.status = StatusEnum.Todo;
+              this.saveTask(changesObject);
             }
             break;
           case StatusEnum.Inprogress:
-            this.todoList[todoId].status = StatusEnum.Inprogress;
+            changesObject.status = StatusEnum.Inprogress;
+            this.saveTask(changesObject);
             break;
           case StatusEnum.Done:
-            this.todoList[todoId].status = StatusEnum.Done;
+            changesObject.status = StatusEnum.Done;
+            this.saveTask(changesObject);
             break;
         }
       }
@@ -140,32 +193,24 @@ export default defineComponent({
     },
   },
 
-  created() {
-    this.todoList = this.todoListGlobal;
-  },
-  beforeUnmount() {
-    this.$emit('todoListGlobalUpdate', this.todoList);
-  },
+  watch: {
+    search() {
+      this.onSubmitSearch();
+    },
 
-  computed: {
-    // getTodo() {
-    //   return this.todoList.filter((el) => el.status === 'todo');
-    // },
-    //
-    // getInprogress() {
-    //   return this.todoList.filter((el) => el.status === 'inprogress');
-    // },
-    //
-    // getDone() {
-    //   return this.todoList.filter((el) => el.status === 'done');
-    // },
+    date(currVal, oldVal) {
+      if (currVal === null) {
+        this.date = [];
+      }
+      this.onSubmitSearch();
+    },
   },
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .selected {
-  animation: scale_ .7s linear alternate;
+  animation: scale_ 0.7s linear alternate;
   animation-iteration-count: 1;
 }
 
@@ -184,6 +229,84 @@ export default defineComponent({
   position: fixed;
 }
 
+.serchDateBox {
+  transition: all 0.6s cubic-bezier(0, 0.8, 0, 1);
+  margin-bottom: 20px;
+  margin-top: -2px;
+  border-bottom: 1px solid #ffc200;
+  height: 35px;
+
+  &.hide {
+    height: 0;
+    margin-left: 100%;
+    overflow: hidden;
+  }
+
+  .dp__main {
+    .dp__input {
+      font-family: 'Helvetica', Arial, sans-serif;
+      font-size: 13px;
+      border: none;
+    }
+  }
+}
+
+#search {
+  position: relative;
+  width: 100%;
+  margin: 0 auto 0px;
+  height: 41px;
+
+  input {
+    top: 0;
+    right: 0;
+    height: 38px;
+    width: 100%;
+    padding: 0 40px 0 0;
+    outline: none;
+    background: transparent;
+    transition: 0.6s cubic-bezier(0, 0.8, 0, 1);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+
+    padding-left: 15px;
+    border-bottom: 2px solid #ffc200;
+    border-top: 1px solid #ffc200;
+
+    &:focus {
+      padding-left: 15px;
+      border-bottom: 2px solid #ffc200;
+      border-top: 1px solid #ffc200;
+
+      cursor: text;
+      padding-right: 55px;
+    }
+  }
+
+  .group-btn {
+    position: absolute;
+    top: 1px;
+    right: 0;
+
+    button {
+      background: #e3efff;
+      border: none;
+      height: 35px;
+      width: 35px;
+      padding: 3px;
+      transition: 0.3s linear;
+
+      &:not(:last-child) {
+        border-right: 1px solid #cccccc;
+      }
+
+      &:hover {
+        background: #fff8dd;
+      }
+    }
+  }
+}
+
 .flex-container {
   display: flex;
   justify-content: space-between;
@@ -194,9 +317,9 @@ export default defineComponent({
     flex: 0 0 32%;
     padding: 5px 8px;
     border: 1px solid #000000;
-    -webkit-box-shadow: 2px 4px 0px 0px rgba(0, 0, 0, 1);
-    -moz-box-shadow: 2px 4px 0px 0px rgba(0, 0, 0, 1);
-    box-shadow: 2px 4px 0px 0px rgba(0, 0, 0, 1);
+    -webkit-box-shadow: 2px 4px 0 0 rgba(0, 0, 0, 1);
+    -moz-box-shadow: 2px 4px 0 0 rgba(0, 0, 0, 1);
+    box-shadow: 2px 4px 0 0 rgba(0, 0, 0, 1);
 
     &.hovered {
       opacity: 0.5;
@@ -225,6 +348,8 @@ export default defineComponent({
       border-radius: 3px;
       cursor: move;
       transition: 0.3s ease-out;
+      box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.3);
+      overflow: hidden;
 
       i.modify {
         position: absolute;
@@ -245,11 +370,11 @@ export default defineComponent({
         position: absolute;
         color: limegreen;
 
-        &.fa-calendar-day{
+        &.fa-calendar-day {
           color: #ffc200;
         }
 
-        &.fa-hourglass-end{
+        &.fa-hourglass-end {
           color: red;
         }
       }
@@ -268,18 +393,39 @@ export default defineComponent({
         border-bottom: 1px solid rgb(133, 133, 133);
         text-indent: 22px;
         line-height: 16px;
-
-        &.deadline{
-          border-bottom: 2px solid red;
-        }
-
-        &.lastday{
-          border-bottom: 2px solid #ffc200;
-        }
       }
 
       &:hover {
         background-color: #fff8dd;
+      }
+    }
+
+    .to-do {
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3), 1px 1px 5px rgba(255, 255, 255, 1);
+    }
+
+    .in-progress {
+      /*clip-path: polygon(30px 0%, 100% 0%, 100% 100%, 30px 100%, 0 50%);*/
+      /*background: white;*/
+      /*background:linear-gradient(-150deg, #58a 23px, white 0);*/
+    }
+
+    .do-ne {
+      /*background: white;*/
+      /*background:linear-gradient(-45deg, #58a 15px, white 0);*/
+
+      &:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-bottom: 21px solid #58a;
+        border-left: 21px solid transparent;
+        -webkit-box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.3);
+        box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.3);
       }
     }
   }
@@ -352,9 +498,6 @@ table {
 }
 
 @media only screen and (max-width: 500px) {
-  /*.select select {*/
-  /*max-width: 100%;*/
-  /*}*/
   .flex-container {
     flex-flow: column nowrap;
 

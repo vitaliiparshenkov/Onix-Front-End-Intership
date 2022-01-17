@@ -6,6 +6,7 @@ export interface TodoInterface {
   completed?: boolean;
   show: boolean;
   status: StatusEnum;
+  globalId?: number;
 }
 
 export enum StatusEnum {

@@ -4,12 +4,10 @@
     .modal-close(@click="closeModalWindow") &#10006;
     .modal-title
       slot(name="title")
-        <!--h2 Header-->
     .modal-content
       slot(name="body")
     .modal-footer
       slot(name="footer")
-        <!--button(@click="closeModal") Action-->
 </template>
 
 <script lang="ts">
@@ -65,14 +63,12 @@ export default defineComponent({
 
 .modal {
   background: #fff;
-  /*border-radius: 8px;*/
   padding: 15px;
   min-width: 400px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /*overflow: hidden;*/
 
   &-close {
     color: #fff;

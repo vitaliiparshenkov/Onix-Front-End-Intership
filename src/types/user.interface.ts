@@ -1,5 +1,5 @@
 export interface CurrentUserInterface {
-  name: string;
+  readonly name: string;
   position: string;
   avatar: string;
   name2: string;

@@ -31,8 +31,8 @@ form(@submit.prevent="onSubmit")
 import {defineComponent} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
 import Datepicker from 'vue3-datepicker';
-// import Datepicker from 'vue3-date-time-picker';
-// import 'vue3-date-time-picker/dist/main.css';
+import dateInStringFormat from '@/mixins/dateInStringFormat';
+
 export default defineComponent({
   data() {
     return {
@@ -46,12 +46,13 @@ export default defineComponent({
     };
   },
 
-  // name: 'kanban',
   components: {
     datepicker: Datepicker,
   },
 
-  props: ['modifyTask'],
+  props: ['modifyTaskId', 'todoListGlobal'],
+
+  mixins: [dateInStringFormat],
 
   emits: {
     'save-task': null,
@@ -62,7 +63,7 @@ export default defineComponent({
     onSubmit() {
       //-- Edit -----
       if (this.isDisable) {
-        if (this.modifyTask.status != StatusEnum.Done) {
+        if (this.changeRecord.status != StatusEnum.Done) {
           this.isDisable = false;
           this.statusOper = StatusOperation.Cancel;
         } else {
@@ -82,8 +83,9 @@ export default defineComponent({
   },
 
   created() {
-    if (Object.keys(this.modifyTask).length != 0) {
-      this.changeRecord = {...this.modifyTask};
+    if (this.modifyTaskId != -1) {
+      this.changeRecord = {...this.todoListGlobal[this.modifyTaskId]};
+      this.changeRecord.globalId = this.modifyTaskId;
       this.isDisable = true;
       this.statusOper = StatusOperation.Edit;
     } else {
@@ -91,7 +93,7 @@ export default defineComponent({
         taskId: -1,
         name: '',
         desc: '',
-        completionDate: new Date(),
+        completionDate: new Date(this.getDateInStringFormat(new Date())),
         completed: false,
         show: false,
         status: StatusEnum.Todo,
@@ -114,24 +116,23 @@ export default defineComponent({
 
   computed: {
     buttonCaption() {
-      if (this.statusOper == StatusOperation.Edit) {
-        return StatusOperation[1];
+      switch (this.statusOper) {
+        case StatusOperation.Edit:
+          return StatusOperation[1];
+
+        case StatusOperation.Cancel:
+          return StatusOperation[2];
+
+        case StatusOperation.Save:
+          return StatusOperation[3];
+
+        default:
+          return StatusOperation[0];
       }
-      if (this.statusOper == StatusOperation.Cancel) {
-        return StatusOperation[2];
-      }
-      if (this.statusOper == StatusOperation.Save) {
-        return StatusOperation[3];
-      }
-      return StatusOperation[0];
     },
 
     isStatusOperationAdd() {
-      if (this.statusOper == StatusOperation.Add) {
-        return true;
-      } else {
-        return false;
-      }
+      return this.statusOper == StatusOperation.Add;
     },
   },
 });
