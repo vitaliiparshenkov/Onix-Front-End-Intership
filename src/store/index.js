@@ -1,5 +1,11 @@
 import { createStore } from 'vuex';
 import { StatusEnum } from '@/types/task.interface';
+import messagesStore from '@/store/modules/messages.ts';
+import VuexPersist from 'vuex-persist';
+const vuexLocal = new VuexPersist({
+    // key: 'todoList',
+    storage: window.localStorage,
+});
 export default createStore({
     state: {
         todoList: [
@@ -7,7 +13,8 @@ export default createStore({
                 taskId: 1,
                 name: 'Доделать домашнее задание №3',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('11/22/2021'),
+                // completionDate: new Date('11/22/2021'),
+                completionDate: '11/22/2021',
                 show: false,
                 status: StatusEnum.Done,
             },
@@ -15,7 +22,8 @@ export default createStore({
                 taskId: 2,
                 name: 'Сделать домашнее задание №4',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('11/05/2021'),
+                // completionDate: new Date('11/05/2021'),
+                completionDate: '11/05/2021',
                 show: false,
                 status: StatusEnum.Todo,
             },
@@ -23,7 +31,7 @@ export default createStore({
                 taskId: 3,
                 name: 'Закончить Onix front-end Intership',
                 desc: 'Получить диплом(грамоту)',
-                completionDate: new Date('12/31/2021'),
+                completionDate: '12/31/2021',
                 show: false,
                 status: StatusEnum.Todo,
             },
@@ -31,7 +39,7 @@ export default createStore({
                 taskId: 4,
                 name: 'Попасть в onix team',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('01/31/2022'),
+                completionDate: '01/31/2022',
                 show: false,
                 status: StatusEnum.Todo,
             },
@@ -39,7 +47,7 @@ export default createStore({
                 taskId: 5,
                 name: 'Получить offer',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('01/15/2022'),
+                completionDate: '01/15/2022',
                 show: false,
                 status: StatusEnum.Done,
             },
@@ -47,7 +55,7 @@ export default createStore({
                 taskId: 6,
                 name: 'Пройти испытательный срок',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('04/15/2022'),
+                completionDate: '04/15/2022',
                 show: false,
                 status: StatusEnum.Done,
             },
@@ -55,7 +63,7 @@ export default createStore({
                 taskId: 7,
                 name: 'Договориться о высокой ЗП',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('01/10/2022'),
+                completionDate: '01/10/2022',
                 show: false,
                 status: StatusEnum.Inprogress,
             },
@@ -63,7 +71,7 @@ export default createStore({
                 taskId: 8,
                 name: 'Полноценно приступить к работе',
                 desc: 'Написать программу, содержащую процедуру, которая меняет местами первый и пятый элементы непустого списка. Если элементы не найдены, то выдать на экран соответствующие сообщение.',
-                completionDate: new Date('02/10/2022'),
+                completionDate: '02/10/2022',
                 show: false,
                 status: StatusEnum.Todo,
             },
@@ -90,18 +98,24 @@ export default createStore({
         },
     },
     mutations: {
-        addNewTodo(state, payload) {
+        addTodo(state, payload) {
             state.todoList.push(payload);
+        },
+        modifyTodo(state, { id, task }) {
+            state.todoList[id] = task;
+        },
+        removeTodo(state, payload) {
+            state.todoList.splice(payload, 1);
         },
     },
     actions: {
-        // addNewTodo(context, data) {
-        //   context.commit('addNewTodo', data);
-        // },
-        addNewTodo({ commit }, data) {
-            commit('addNewTodo', data);
+        modifyTodo(context, data) {
+            context.commit('modifyTodo', data);
         },
     },
-    modules: {},
+    modules: {
+        messages: messagesStore,
+    },
+    plugins: [vuexLocal.plugin],
 });
 //# sourceMappingURL=index.js.map

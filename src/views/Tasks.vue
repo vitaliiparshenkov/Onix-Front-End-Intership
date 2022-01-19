@@ -1,21 +1,21 @@
 <template lang="pug">
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
-    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId" :todoListGlobal="todoListGlobal")
+    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId")
 
 div.task-header-container
   h1.todo-list Todo List
   button.add-new-task(@click="isOpenModal = true" :class="{active: isOpenModal}")
     i.fas.fa-plus
 hr
-transition-group(tag="ul" name="list-complete" v-if="todoListGlobal.length")
-  li(v-for="(task, taskId) of todoListGlobal" :key="task" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
+transition-group(tag="ul" name="list-complete" v-if="todoList.length")
+  li(v-for="(task, taskId) of todoList" :key="task" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
       span.task(:class="{done: isTodoStatusDone(task.status)}" @click.prevent="modifyTask(taskId)")
         input(type="checkbox" @change="task.completed = !task.completed" :id="`task-${taskId}`" :checked="isTodoStatusDone(task.status)")
         label(:for="`task-${taskId}`")
           strong() {{ task.name }}&ensp;
-          time(datetime="2010-07-26T23:42+03:00") ({{ getDateInStringFormat(task.completionDate) }})
+          time(datetime="2010-07-26T23:42+03:00") ({{ task.completionDate }})
           i(v-if="task.status === StatusEnum.Todo") &ensp;:Todo
           i(v-else-if="task.status === StatusEnum.Inprogress") &ensp;:Inprogress
           i(v-else="task.status === StatusEnum.Done") &ensp;:Done
@@ -31,11 +31,11 @@ div(v-else)
 
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
-import {TodoInterface, StatusEnum} from '@/types/task.interface';
+import {StatusEnum} from '@/types/task.interface';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-// import {mapState} from 'vuex';
+import {mapState, mapMutations} from 'vuex';
 
 export default defineComponent({
   data() {
@@ -52,30 +52,29 @@ export default defineComponent({
     'modal-window': ModalWindow,
   },
 
-  props: ['todoListGlobal'],
+  props: [''],
 
   mixins: [dateInStringFormat],
 
   emits: {
     'change-notifis': null,
-    'remove-task': null,
-    'save-task': null,
   },
 
   methods: {
+    ...mapMutations(['removeTodo']),
+
     modifyTask(taskId: number) {
       this.modifyTaskId = taskId;
       this.isOpenModal = true;
     },
 
-    saveTask(task: TodoInterface): void {
-      this.$emit('save-task', task);
+    saveTask(): void {
       setTimeout(this.removeClass, 3000, 'blink');
       this.closeModalWindow();
     },
 
     removeTask(i: number): void {
-      this.$emit('remove-task', i);
+      this.removeTodo(i);
     },
 
     closeModalWindow() {
@@ -117,21 +116,23 @@ export default defineComponent({
   },
 
   mounted() {
-    // console.log('mounted()');
     this.removeClass('blink');
     this.goByElem();
   },
 
   computed: {
+    //--- 0 variant
+    // ...mapState({globalTodoList: 'todoList'}),
+
     //--- 1 variant
     // ...mapState(['todoList']),
 
     //--- 2 variant
-    // ...mapState({
-    //   todoList(state: any): any {
-    //     return state.todoList;
-    //   },
-    // }),
+    ...mapState({
+      todoList(state: any): any {
+        return state.todoList;
+      },
+    }),
 
     //--- 3 variant
     // todoList(): any {

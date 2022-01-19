@@ -1,18 +1,81 @@
 <template lang="pug">
-coming-soon
+h1 Event Calendar
+Calendar(
+          :attributes="attributes"
+          title-position="left"
+          is-range
+          is-expanded
+          trim-weeks
+          )
+
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import ComingSoon from '@/components/ComingSoon.vue';
+import {Calendar, DatePicker} from 'v-calendar';
+import {mapState} from 'vuex';
+
 export default defineComponent({
   data() {
     return {};
   },
+
   name: 'calendar',
+
   components: {
-    'coming-soon': ComingSoon,
-    // ComingSoon: () => import('@/components/ComingSoon.vue'),
+    Calendar,
+    DatePicker,
+  },
+
+  emits: {
+    'change-notifis': null,
+  },
+
+  computed: {
+    ...mapState(['todoList']),
+
+    attributes() {
+      return [
+        ...this.todoList.map((todo) => ({
+          dates: todo.completionDate,
+          dot: false,
+          popover: {
+            label: todo.name,
+            visibility: 'click',
+            // hideIndicator: true,
+            style: {
+              backgroundColor: 'red',
+            },
+          },
+          // customData: todo,
+          highlight: {
+            color: 'indigo',
+            fillMode: 'solid',
+            style: {
+              borderRadius: 0,
+            },
+          },
+        })),
+      ];
+    },
   },
 });
 </script>
+
+<style lang="scss" scoped>
+h1 {
+  border-bottom: 1px solid #cccccc;
+  margin-bottom: 20px;
+}
+
+.vc-container {
+  border-radius: 0;
+
+  .vc-weeks {
+    &.vc-weekday,
+    &.vc-day-box-center-center {
+      border-top: 1px solid #cccccc;
+    }
+  }
+}
+</style>
