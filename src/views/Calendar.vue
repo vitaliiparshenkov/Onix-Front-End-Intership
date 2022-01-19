@@ -1,12 +1,6 @@
 <template lang="pug">
 h1 Event Calendar
-Calendar(
-          :attributes="attributes"
-          title-position="left"
-          is-range
-          is-expanded
-          trim-weeks
-          )
+Calendar(:attributes="attributes" title-position="left" is-expanded )
 
 </template>
 

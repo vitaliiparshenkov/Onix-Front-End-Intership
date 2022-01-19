@@ -23,10 +23,7 @@ export default defineComponent({
     'save-task': null,
   },
 
-  components: {
-    // 'coming-soon': ComingSoon,
-    // ComingSoon: () => import('@/components/ComingSoon.vue'),
-  },
+  components: {},
 
   methods: {},
 
