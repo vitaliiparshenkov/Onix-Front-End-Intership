@@ -62,26 +62,21 @@ export default defineComponent({
     datepicker: Datepicker,
   },
 
-  props: [''],
+  props: [],
 
   mixins: [dateInStringFormat],
 
-  emits: {
-    'change-notifis': null,
-    'remove-task': null,
-    'save-task': null,
-  },
+  emits: {},
 
   methods: {
-    ...mapActions({changeTodo: 'modifyTodo'}),
+    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
 
     modifyTask(taskId: number) {
       this.modifyTaskId = taskId;
       this.isOpenModal = true;
     },
 
-    saveTask(task: TodoInterface): void {
-      this.$emit('save-task', task);
+    saveTask(): void {
       this.closeModalWindow();
     },
 
@@ -198,7 +193,7 @@ export default defineComponent({
   },
 
   computed: {
-    ...mapState(['todoList']),
+    ...mapState('todos', ['todoList']),
   },
 
   watch: {

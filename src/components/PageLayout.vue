@@ -2,12 +2,12 @@
 div(:class="['wrapper', {lock: showStats}]" @lockWrapper="showStats = $event")
 	.wrapper_container
 		.sidebar
-			TheSidebar(:notifications="notifications")
+			TheSidebar
 
 		.content
 			TheHeader
 			main
-				router-view(@change-notifis="notifications = $event")
+				router-view
 </template>
 
 <script lang="ts">
@@ -18,7 +18,6 @@ import {defineComponent} from 'vue';
 export default defineComponent({
   data() {
     return {
-      notifications: '~',
       showStats: false,
     };
   },
@@ -30,7 +29,9 @@ export default defineComponent({
     TheHeader,
   },
 
-  methods: {},
+  mounted() {
+    this.$store.commit('modifyNotofis', '~');
+  },
 });
 </script>
 

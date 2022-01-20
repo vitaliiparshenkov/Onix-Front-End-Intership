@@ -66,8 +66,8 @@ export default defineComponent({
     // ...mapMutations(['addTodo']),
 
     //--- 2 variant
-    ...mapMutations({addNewTodo: 'addTodo'}),
-    ...mapActions({changeTodo: 'modifyTodo'}),
+    ...mapMutations('todos', {addNewTodo: 'addTodo'}),
+    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
 
     onSubmit() {
       //-- Edit -----
@@ -134,7 +134,7 @@ export default defineComponent({
   },
 
   computed: {
-    ...mapState(['todoList']),
+    ...mapState('todos', ['todoList']),
 
     buttonCaption() {
       switch (this.statusOper) {

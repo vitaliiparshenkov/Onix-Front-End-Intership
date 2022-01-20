@@ -10,13 +10,14 @@ p.day today
 
     .msg_list(v-if="msgItem.imageList")
       .img_item(v-for="(imgItem, ind) of msgItem.imageList" :key="ind")
-        img(:src="require('@/assets/' + imgItem)" :alt="imgItem" @click="$emit('change-notifis', ind)")
+        <!--img(:src="require('@/assets/' + imgItem)" :alt="imgItem" @click="$emit('change-notifis', ind)")-->
+        img(:src="require('@/assets/' + imgItem)" :alt="imgItem" @click="changeNotofis(ind)")
   time.time(datetime="2010-07-26T23:42+03:00") {{ msgItem.time }}
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import {mapState} from 'vuex';
+import {mapState, mapMutations} from 'vuex';
 
 export default defineComponent({
   data() {
@@ -28,9 +29,11 @@ export default defineComponent({
   props: [''],
 
   emits: {
-    'change-notifis': null,
-    'remove-task': null,
-    'save-task': null,
+    // 'change-notifis': null,
+  },
+
+  methods: {
+    ...mapMutations({changeNotofis: 'modifyNotofis'}),
   },
 
   computed: {

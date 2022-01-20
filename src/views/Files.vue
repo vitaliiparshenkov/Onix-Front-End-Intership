@@ -8,7 +8,7 @@ ul.list
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import {mapState} from 'vuex';
+import {mapState, mapGetters} from 'vuex';
 
 export default defineComponent({
   data() {
@@ -17,11 +17,7 @@ export default defineComponent({
 
   name: 'files',
 
-  emits: {
-    'change-notifis': null,
-    'remove-task': null,
-    'save-task': null,
-  },
+  emits: {},
 
   components: {},
 
@@ -34,24 +30,13 @@ export default defineComponent({
       },
     }),
 
-    imageList() {
-      const imgList: string[] = [];
-      // const imgList: Array<string> = [];
-      for (let msgItem of this.MessageList) {
-        if ('imageList' in msgItem) {
-          for (let imgItem of msgItem.imageList) {
-            imgList.push(imgItem);
-          }
-        }
-      }
-      return imgList;
-    },
+    ...mapGetters('messages', {imageList: 'getImageList'}),
   },
 });
 </script>
 
 <style lang="scss" scoped>
-h1{
+h1 {
   border-bottom: 1px solid #cccccc;
 }
 

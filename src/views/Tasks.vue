@@ -57,11 +57,11 @@ export default defineComponent({
   mixins: [dateInStringFormat],
 
   emits: {
-    'change-notifis': null,
+    // 'change-notifis': null,
   },
 
   methods: {
-    ...mapMutations(['removeTodo']),
+    ...mapMutations('todos', ['removeTodo']),
 
     modifyTask(taskId: number) {
       this.modifyTaskId = taskId;
@@ -122,19 +122,22 @@ export default defineComponent({
 
   computed: {
     //--- 0 variant
-    // ...mapState({globalTodoList: 'todoList'}),
+    ...mapState('todos', {todoList: 'todoList'}),
 
     //--- 1 variant
-    // ...mapState(['todoList']),
+    // ...mapState({globalTodoList: 'todoList'}),
 
     //--- 2 variant
-    ...mapState({
-      todoList(state: any): any {
-        return state.todoList;
-      },
-    }),
+    // ...mapState(['todoList']),
 
     //--- 3 variant
+    // ...mapState({
+    //   todoList(state: any): any {
+    //     return state.todoList;
+    //   },
+    // }),
+
+    //--- 4 variant
     // todoList(): any {
     //   return this.$store.state.todoList;
     // },

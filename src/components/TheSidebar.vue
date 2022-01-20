@@ -58,12 +58,14 @@ aside
           a(href="#") My Tasks
         li.sidebar_menu_item
           a(href="#") Notifications
-            span.number(@changeNotifi="Notifications = $event") {{ notifications }}
+            span.number {{ notificationsCount }}
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue';
 import {CurrentUserInterface} from '@/types/user.interface.ts';
+import {mapState} from 'vuex';
+
 export default defineComponent({
   data() {
     return {
@@ -79,7 +81,7 @@ export default defineComponent({
     };
   },
   name: 'sidebar',
-  props: ['notifications'],
+  props: [''],
   emits: {lockWrapper: null},
   methods: {
     changeCompletedTasks() {
@@ -107,6 +109,10 @@ export default defineComponent({
       }
       this.showBurgerMenu = !this.showBurgerMenu;
     },
+  },
+
+  computed: {
+    ...mapState(['notificationsCount']),
   },
 });
 </script>

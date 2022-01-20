@@ -27,7 +27,24 @@ const store: Module<any, any> = {
     ] as MessageInterface[],
   },
 
-  getters: {},
+  getters: {
+    getMessageList: (state) => {
+      return state.MessageList;
+    },
+
+    getImageList: (state, getters) => {
+      const imgList: string[] = [];
+      // const imgList: Array<string> = [];
+      for (const msgItem of getters.getMessageList) {
+        if ('imageList' in msgItem) {
+          for (const imgItem of msgItem.imageList) {
+            imgList.push(imgItem);
+          }
+        }
+      }
+      return imgList;
+    },
+  },
 
   mutations: {},
 
