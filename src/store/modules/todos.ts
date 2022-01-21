@@ -84,9 +84,11 @@ const store: Module<any, any> = {
     filterTodo: (state) => {
       return state.todoList.filter((todo: TodoInterface) => todo.status === StatusEnum.Todo);
     },
+
     filterInprogres: (state) => {
       return state.todoList.filter((todo: TodoInterface) => todo.status === StatusEnum.Inprogress);
     },
+
     filterDone: (state) => {
       return state.todoList.filter((todo: TodoInterface) => todo.status === StatusEnum.Done);
     },
@@ -94,11 +96,17 @@ const store: Module<any, any> = {
     getCountTodos: (state) => {
       return state.todoList.filter((todo: TodoInterface) => todo.status === StatusEnum.Todo).length;
     },
+
     getCountInprogress: (state) => {
       return state.todoList.filter((todo: TodoInterface) => todo.status === StatusEnum.Inprogress).length;
     },
+
     getCountDones: (state) => {
       return state.todoList.filter((todo: TodoInterface) => todo.status === StatusEnum.Done).length;
+    },
+
+    getCountOpenTasks: (state, getters) => {
+      return state.todoList.length - getters.getCountDones;
     },
   },
 

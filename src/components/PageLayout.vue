@@ -1,5 +1,5 @@
 <template lang="pug">
-div(:class="['wrapper', {lock: showStats}]" @lockWrapper="showStats = $event")
+div(:class="['wrapper', {lock: showStats}]")
 	.wrapper_container
 		.sidebar
 			TheSidebar
@@ -23,6 +23,8 @@ export default defineComponent({
 
     onMounted(() => {
       store.commit('modifyNotofis', '~');
+      showStats.value = store.state.showStats;
+      // store.commit('modifyShowStats', showStats.value);
     });
 
     return {
@@ -36,7 +38,6 @@ export default defineComponent({
     TheSidebar,
     TheHeader,
   },
-
 });
 </script>
 

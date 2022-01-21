@@ -5,29 +5,22 @@ Calendar(:attributes="attributes()" title-position="left" is-expanded)
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, computed} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
 import {Calendar, DatePicker} from 'v-calendar';
-import {mapState} from 'vuex';
+import {useStore} from 'vuex';
 
 export default defineComponent({
-  data() {
-    return {};
-  },
+  setup() {
+    const store = useStore();
 
-  name: 'calendar',
+    let todoList = computed(() => {
+      return store.state.todos.todoList;
+    });
 
-  components: {
-    Calendar,
-    DatePicker,
-  },
-
-  emits: {},
-
-  methods: {
-    attributes() {
+    const attributes = () => {
       return [
-        ...this.todoList.map((todo: TodoInterface) => ({
+        ...todoList.value.map((todo: TodoInterface) => ({
           dates: todo.createDate,
           dot: false,
           popover: {
@@ -48,15 +41,25 @@ export default defineComponent({
           },
         })),
       ];
-    },
+    };
+
+    return {
+      attributes,
+    };
   },
 
-  computed: {
-    // ...mapState('todos', {todoList: 'todoList'}),
-    todoList(): any {
-      return this.$store.state.todos.todoList;
-    },
+  data() {
+    return {};
   },
+
+  name: 'calendar',
+
+  components: {
+    Calendar,
+    DatePicker,
+  },
+
+  emits: {},
 });
 </script>
 
@@ -68,6 +71,7 @@ h1 {
 
 .vc-container {
   border-radius: 0;
+  z-index: 0;
 
   .vc-weeks {
     &.vc-weekday,

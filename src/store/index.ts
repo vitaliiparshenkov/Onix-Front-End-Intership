@@ -11,6 +11,7 @@ const vuexLocal = new VuexPersist({
 export default createStore({
   state: {
     notificationsCount: '~',
+    showStats: false,
   },
 
   getters: {},
@@ -18,6 +19,10 @@ export default createStore({
   mutations: {
     modifyNotofis(state, payload) {
       state.notificationsCount = payload;
+    },
+
+    modifyShowStats(state, payload) {
+      state.showStats = payload;
     },
   },
 

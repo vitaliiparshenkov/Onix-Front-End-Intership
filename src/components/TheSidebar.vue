@@ -62,57 +62,80 @@ aside
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, computed, ref} from 'vue';
 import {CurrentUserInterface} from '@/types/user.interface.ts';
-import {mapState} from 'vuex';
+import {useStore} from 'vuex';
+import {useRouter} from 'vue-router';
 
 export default defineComponent({
-  data() {
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const currentUser: CurrentUserInterface = {
+      name: 'Jean Gonzales',
+      position: 'Product Owner',
+      avatar: require('@/assets/foto_1.jpg'),
+    };
+    const showStats = ref(false);
+    const showBurgerMenu = ref(false);
+
+    const notificationsCount = computed(() => {
+      return store.state.notificationsCount;
+    });
+    let completedTasks = computed(() => {
+      return store.getters['todos/getCountDones'];
+    });
+    let openTasks = computed(() => {
+      return store.getters['todos/getCountOpenTasks'];
+    });
+
+    const showBurger = () => {
+      if (showStats.value) {
+        showStats.value = !showStats.value;
+      }
+      showBurgerMenu.value = !showBurgerMenu.value;
+    };
+
+    const showStatistic = () => {
+      showStats.value = !showStats.value;
+      store.commit('modifyShowStats', showStats.value);
+    };
+
+    const goTaskPage = () => {
+      router.push({name: 'tasks'});
+    };
+
     return {
-      completedTasks: 107,
-      openTasks: 3,
-      currentUser: {
-        name: 'Jean Gonzales',
-        position: 'Product Owner',
-        avatar: require('@/assets/foto_1.jpg'),
-      } as CurrentUserInterface,
-      showStats: false,
-      showBurgerMenu: false,
+      notificationsCount,
+      completedTasks,
+      currentUser,
+      openTasks,
+      showStats,
+      showBurgerMenu,
+      showBurger,
+      showStatistic,
+      goTaskPage,
     };
   },
-  name: 'sidebar',
-  props: [''],
-  emits: {lockWrapper: null},
-  methods: {
-    changeCompletedTasks() {
-      if (confirm('Are you sure you want to change the number of tasks?')) {
-        if (this.openTasks > 0) {
-          this.completedTasks++;
-          this.openTasks--;
-        } else {
-          alert("Sorry, but you were carried away by your work and did not see that you don't have open projects.");
-        }
-      }
-    },
-    goTaskPage() {
-      if (this.openTasks > 0) {
-        this.$router.push({name: 'tasks'});
-      }
-    },
-    showStatistic() {
-      this.showStats = !this.showStats;
-      this.$emit('lockWrapper', this.showStats);
-    },
-    showBurger() {
-      if (this.showStats) {
-        this.showStats = !this.showStats;
-      }
-      this.showBurgerMenu = !this.showBurgerMenu;
-    },
-  },
 
-  computed: {
-    ...mapState(['notificationsCount']),
+  name: 'sidebar',
+
+  props: [''],
+
+  // emits: {lockWrapper: null},
+
+  methods: {
+    // changeCompletedTasks() {
+    //   if (confirm('Are you sure you want to change the number of tasks?')) {
+    //     if (this.openTasks > 0) {
+    //       this.completedTasks++;
+    //       this.openTasks--;
+    //     } else {
+    //       alert("Sorry, but you were carried away by your work and did not see that you don't have open projects.");
+    //     }
+    //   }
+    // },
   },
 });
 </script>

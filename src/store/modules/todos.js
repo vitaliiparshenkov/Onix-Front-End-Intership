@@ -95,6 +95,9 @@ const store = {
         getCountDones: (state) => {
             return state.todoList.filter((todo) => todo.status === StatusEnum.Done).length;
         },
+        getCountOpenTasks: (state, getters) => {
+            return state.todoList.length - getters.getCountDones;
+        },
     },
     mutations: {
         addTodo(state, payload) {

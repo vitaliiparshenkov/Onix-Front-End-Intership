@@ -8,7 +8,6 @@ ul.list
 
 <script lang="ts">
 import {defineComponent, computed} from 'vue';
-import {mapState, mapGetters} from 'vuex';
 import {useStore} from 'vuex';
 
 export default defineComponent({
