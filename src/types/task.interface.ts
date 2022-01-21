@@ -2,11 +2,11 @@ export interface TodoInterface {
   taskId: number;
   name: string;
   desc: string;
-  completionDate: Date;
+  completionDate: string;
+  createDate: string;
   completed?: boolean;
   show: boolean;
   status: StatusEnum;
-  globalId?: number;
 }
 
 export enum StatusEnum {

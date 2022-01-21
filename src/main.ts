@@ -6,3 +6,4 @@ import '@/assets/scss/style.scss';
 import '@/assets/scss/responsive.scss';
 
 createApp(App).use(store).use(router).mount('#app');
+

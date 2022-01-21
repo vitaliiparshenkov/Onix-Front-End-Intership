@@ -22,7 +22,7 @@ form(@submit.prevent="onSubmit")
         br
         label(for="date") Complete&nbsp;date
           em *
-        datepicker.date-class(id="date" v-model="changeRecord.completionDate" :lowerLimit="from" readonly :disabled="isDisable" :inputFormat="inputFormat")
+        datepicker.date-class(id="date" v-model="compDate" :lowerLimit="from" readonly :disabled="isDisable" :inputFormat="inputFormat" startingView="day")
     button(type="submit" :class="{hidden: !visible}") {{buttonCaption}}
     p.wrong(v-show="showMessageWrongPeriod") Completed tasks cannot be edited
 </template>
@@ -32,10 +32,12 @@ import {defineComponent} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
 import Datepicker from 'vue3-datepicker';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
+import {mapState, mapMutations, mapActions} from 'vuex';
 
 export default defineComponent({
   data() {
     return {
+      compDate: new Date(),
       visible: true,
       isDisable: false,
       statusOper: StatusOperation.Add as StatusOperation,
@@ -50,7 +52,7 @@ export default defineComponent({
     datepicker: Datepicker,
   },
 
-  props: ['modifyTaskId', 'todoListGlobal'],
+  props: ['modifyTaskId'],
 
   mixins: [dateInStringFormat],
 
@@ -60,6 +62,13 @@ export default defineComponent({
   },
 
   methods: {
+    //--- 1 variant
+    // ...mapMutations(['addTodo']),
+
+    //--- 2 variant
+    ...mapMutations('todos', {addNewTodo: 'addTodo'}),
+    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
+
     onSubmit() {
       //-- Edit -----
       if (this.isDisable) {
@@ -73,7 +82,17 @@ export default defineComponent({
         this.$emit('cancel');
       } else {
         //-- Add/Edit new task -----
-        this.$emit('save-task', this.changeRecord);
+        if (this.modifyTaskId != -1) {
+          this.changeTodo({id: this.modifyTaskId, task: {...this.changeRecord}});
+        } else {
+          let newId = this.todoList.length;
+          while (this.todoList.findIndex((t: TodoInterface) => t.taskId == newId) != -1) {
+            newId++;
+          }
+          this.changeRecord.taskId = newId;
+          this.addNewTodo(this.changeRecord);
+        }
+        this.$emit('save-task');
         this.visible = false;
         setTimeout(() => {
           this.visible = true;
@@ -84,20 +103,22 @@ export default defineComponent({
 
   created() {
     if (this.modifyTaskId != -1) {
-      this.changeRecord = {...this.todoListGlobal[this.modifyTaskId]};
-      this.changeRecord.globalId = this.modifyTaskId;
+      this.changeRecord = {...this.todoList[this.modifyTaskId]};
       this.isDisable = true;
       this.statusOper = StatusOperation.Edit;
+      this.compDate = new Date(this.changeRecord.completionDate);
     } else {
       this.changeRecord = {
         taskId: -1,
         name: '',
         desc: '',
-        completionDate: new Date(this.getDateInStringFormat(new Date())),
+        completionDate: this.getDateInStringFormat(new Date(), 5),
+        createDate: this.getDateInStringFormat(new Date()),
         completed: false,
         show: false,
         status: StatusEnum.Todo,
       };
+      this.compDate = new Date(this.changeRecord.completionDate);
     }
   },
 
@@ -115,6 +136,8 @@ export default defineComponent({
   },
 
   computed: {
+    ...mapState('todos', ['todoList']),
+
     buttonCaption() {
       switch (this.statusOper) {
         case StatusOperation.Edit:
@@ -133,6 +156,12 @@ export default defineComponent({
 
     isStatusOperationAdd() {
       return this.statusOper == StatusOperation.Add;
+    },
+  },
+
+  watch: {
+    compDate(currVal, oldVal) {
+      this.changeRecord.completionDate = this.getDateInStringFormat(currVal);
     },
   },
 });

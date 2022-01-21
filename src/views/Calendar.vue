@@ -1,18 +1,79 @@
 <template lang="pug">
-coming-soon
+h1 Event Calendar
+Calendar(:attributes="attributes()" title-position="left" is-expanded)
+
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import ComingSoon from '@/components/ComingSoon.vue';
+import {TodoInterface} from '@/types/task.interface';
+import {Calendar, DatePicker} from 'v-calendar';
+import {mapState} from 'vuex';
+
 export default defineComponent({
   data() {
     return {};
   },
+
   name: 'calendar',
+
   components: {
-    'coming-soon': ComingSoon,
-    // ComingSoon: () => import('@/components/ComingSoon.vue'),
+    Calendar,
+    DatePicker,
+  },
+
+  emits: {},
+
+  methods: {
+    attributes() {
+      return [
+        ...this.todoList.map((todo: TodoInterface) => ({
+          dates: todo.createDate,
+          dot: false,
+          popover: {
+            label: todo.name,
+            visibility: 'click',
+            // hideIndicator: true,
+            style: {
+              backgroundColor: 'red',
+            },
+          },
+          // customData: todo,
+          highlight: {
+            color: 'indigo',
+            fillMode: 'solid',
+            style: {
+              borderRadius: 0,
+            },
+          },
+        })),
+      ];
+    },
+  },
+
+  computed: {
+    // ...mapState('todos', {todoList: 'todoList'}),
+    todoList(): any {
+      return this.$store.state.todos.todoList;
+    },
   },
 });
 </script>
+
+<style lang="scss" scoped>
+h1 {
+  border-bottom: 1px solid #cccccc;
+  margin-bottom: 20px;
+}
+
+.vc-container {
+  border-radius: 0;
+
+  .vc-weeks {
+    &.vc-weekday,
+    &.vc-day-box-center-center {
+      border-top: 1px solid #cccccc;
+    }
+  }
+}
+</style>

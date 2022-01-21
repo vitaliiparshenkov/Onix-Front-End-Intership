@@ -1,7 +1,7 @@
 <template lang="pug">
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
-    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId" :todoListGlobal="todoListGlobal")
+    add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId")
 
 form#search(@submit.prevent="onSubmitSearch")
   input(type="search" v-model="search" placeholder="Search here...")
@@ -20,13 +20,14 @@ form#search(@submit.prevent="onSubmitSearch")
   div(v-for="status in StatusEnum" :class="status" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
     h2.header-box {{status}}
       p.header-box-count -&nbsp;{{getCountTodoStatus(status)}}&nbsp;-
-    .task-box(v-for="(todo, todoId) of getTodoType(status)" :key="todo" :class="getClassDependentOn(status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoListGlobal.indexOf(todo)")
+    .task-box(v-for="(todo, todoId) of getTodoType(status)" :key="todo" :class="getClassDependentOn(status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(todo)")
       i.status.fas(:class="getClassStatus(todo.completionDate)" v-if="status != StatusEnum.Done")
       i.status.far.fa-calendar-check(v-else)
       p.name {{ todo.name }}
       strong
-        time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate.toString().substr(4, 11) }}
-      i.modify.fas.fa-pen(@click="modifyTask(todoListGlobal.indexOf(todo))" v-if="status != StatusEnum.Done")
+        <!--time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate.toString().substr(4, 11) }}-->
+        time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate }}
+      i.modify.fas.fa-pen(@click="modifyTask(todoList.indexOf(todo))" v-if="status != StatusEnum.Done")
 
 </template>
 
@@ -38,6 +39,7 @@ import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 import Datepicker from 'vue3-date-time-picker';
 import 'vue3-date-time-picker/dist/main.css';
+import {mapState, mapActions} from 'vuex';
 
 let todoId = -1;
 
@@ -51,17 +53,6 @@ export default defineComponent({
       isOpenModal: false,
       serchDateBoxHide: true,
       modifyTaskId: -1,
-      format(date: any) {
-        const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
-        const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
-        const yearStart = date[0].getFullYear();
-
-        const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
-        const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1) : date[1].getMonth() + 1;
-        const yearEnd = date[1].getFullYear();
-
-        return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
-      },
     };
   },
 
@@ -71,24 +62,21 @@ export default defineComponent({
     datepicker: Datepicker,
   },
 
-  props: ['todoListGlobal'],
+  props: [],
 
   mixins: [dateInStringFormat],
 
-  emits: {
-    'change-notifis': null,
-    'remove-task': null,
-    'save-task': null,
-  },
+  emits: {},
 
   methods: {
+    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
+
     modifyTask(taskId: number) {
       this.modifyTaskId = taskId;
       this.isOpenModal = true;
     },
 
-    saveTask(task: TodoInterface): void {
-      this.$emit('save-task', task);
+    saveTask(): void {
       this.closeModalWindow();
     },
 
@@ -98,12 +86,11 @@ export default defineComponent({
     },
 
     getTodoType(status: string) {
-      // return this.todoListGlobal.filter((el: TodoInterface) => el.status === status);
       return this.onSubmitSearch().filter((el: TodoInterface) => el.status === status);
     },
 
     getCountTodoStatus(status: string) {
-      return this.todoListGlobal.filter((el: TodoInterface) => el.status === status).length;
+      return this.todoList.filter((el: TodoInterface) => el.status === status).length;
     },
 
     getClassStatus(date_: any): string {
@@ -133,12 +120,14 @@ export default defineComponent({
 
     onSubmitSearch() {
       if (this.date.length != 0) {
-        return this.todoListGlobal.filter(
-          (el: TodoInterface) =>  el.name.toLowerCase().includes(this.search.toLowerCase()) &&
-            (el.completionDate >= new Date(this.getDateInStringFormat(this.date[0])) && el.completionDate <= new Date(this.getDateInStringFormat(this.date[1])))
+        return this.todoList.filter(
+          (el: TodoInterface) =>
+            el.name.toLowerCase().includes(this.search.toLowerCase()) &&
+            new Date(el.completionDate) >= new Date(this.getDateInStringFormat(this.date[0])) &&
+            new Date(el.completionDate) <= new Date(this.getDateInStringFormat(this.date[1])),
         );
       } else {
-        return this.todoListGlobal.filter((el: TodoInterface) => el.name.toLowerCase().includes(this.search.toLowerCase()));
+        return this.todoList.filter((el: TodoInterface) => el.name.toLowerCase().includes(this.search.toLowerCase()));
       }
     },
 
@@ -148,6 +137,18 @@ export default defineComponent({
 
     showDateString() {
       this.serchDateBoxHide = !this.serchDateBoxHide;
+    },
+
+    format(date: any) {
+      const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
+      const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
+      const yearStart = date[0].getFullYear();
+
+      const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
+      const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1) : date[1].getMonth() + 1;
+      const yearEnd = date[1].getFullYear();
+
+      return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
     },
 
     dragStart(event: any) {
@@ -165,24 +166,22 @@ export default defineComponent({
       event.preventDefault();
       const zone = event.currentTarget.className;
       if (todoId != -1 && zone) {
-        let changesObject = this.todoListGlobal[todoId];
-        changesObject.globalId = todoId;
+        let changesObject = {...this.todoList[todoId]};
         switch (zone) {
           case StatusEnum.Todo:
-            if (this.todoListGlobal[todoId].status != StatusEnum.Done) {
+            if (this.todoList[todoId].status != StatusEnum.Done) {
               changesObject.status = StatusEnum.Todo;
-              this.saveTask(changesObject);
             }
             break;
           case StatusEnum.Inprogress:
             changesObject.status = StatusEnum.Inprogress;
-            this.saveTask(changesObject);
             break;
           case StatusEnum.Done:
             changesObject.status = StatusEnum.Done;
-            this.saveTask(changesObject);
             break;
         }
+
+        this.changeTodo({id: todoId, task: {...changesObject}});
       }
       setTimeout(() => {
         let item = document.querySelector('#todoId_' + todoId);
@@ -191,6 +190,10 @@ export default defineComponent({
         }
       }, 0);
     },
+  },
+
+  computed: {
+    ...mapState('todos', ['todoList']),
   },
 
   watch: {
