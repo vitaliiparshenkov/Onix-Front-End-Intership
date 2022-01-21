@@ -1,6 +1,6 @@
 <template lang="pug">
 h1 Event Calendar
-Calendar(:attributes="attributes" title-position="left" is-expanded)
+Calendar(:attributes="attributes()" title-position="left" is-expanded)
 
 </template>
 
@@ -24,12 +24,7 @@ export default defineComponent({
 
   emits: {},
 
-  computed: {
-    ...mapState('todos', {todoList: 'todoList'}),
-    // todoList(): any {
-    //   return this.$store.state.todos.todoList;
-    // },
-
+  methods: {
     attributes() {
       return [
         ...this.todoList.map((todo: TodoInterface) => ({
@@ -54,9 +49,13 @@ export default defineComponent({
         })),
       ];
     },
+  },
 
-
-
+  computed: {
+    // ...mapState('todos', {todoList: 'todoList'}),
+    todoList(): any {
+      return this.$store.state.todos.todoList;
+    },
   },
 });
 </script>

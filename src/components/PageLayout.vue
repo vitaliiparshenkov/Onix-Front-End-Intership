@@ -13,12 +13,26 @@ div(:class="['wrapper', {lock: showStats}]" @lockWrapper="showStats = $event")
 <script lang="ts">
 import TheSidebar from '@/components/TheSidebar.vue';
 import TheHeader from '@/components/TheHeader.vue';
-import {defineComponent} from 'vue';
+import {defineComponent, ref, onMounted} from 'vue';
+import {useStore} from 'vuex';
 
 export default defineComponent({
+  setup() {
+    const showStats = ref(false);
+    const store = useStore();
+
+    onMounted(() => {
+      store.commit('modifyNotofis', '~');
+    });
+
+    return {
+      showStats,
+    };
+  },
+
   data() {
     return {
-      showStats: false,
+      // showStats: false,
     };
   },
 
@@ -30,7 +44,7 @@ export default defineComponent({
   },
 
   mounted() {
-    this.$store.commit('modifyNotofis', '~');
+    // this.$store.commit('modifyNotofis', '~');
   },
 });
 </script>

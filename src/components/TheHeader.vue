@@ -30,11 +30,19 @@ header
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, ref} from 'vue';
 export default defineComponent({
+  setup() {
+    const headerIconList: string[] = ['foto_1.jpg', 'foto_2.jpg', 'foto_3.jpg'];
+
+	  return{
+      headerIconList,
+    }
+  },
+
   data() {
     return {
-      headerIconList: ['foto_1.jpg', 'foto_2.jpg', 'foto_3.jpg'] as Array<string>,
+      // headerIconList: ['foto_1.jpg', 'foto_2.jpg', 'foto_3.jpg'] as Array<string>,
     };
   },
   name: 'header',
