@@ -35,9 +35,9 @@ export default defineComponent({
   setup() {
     const headerIconList: string[] = ['foto_1.jpg', 'foto_2.jpg', 'foto_3.jpg'];
 
-	  return{
+    return {
       headerIconList,
-    }
+    };
   },
 
   name: 'header',

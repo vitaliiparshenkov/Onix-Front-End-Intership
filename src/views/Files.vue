@@ -36,12 +36,10 @@ export default defineComponent({
     //     return state.messages.MessageList;
     //   },
     // }),
-
     // ...mapGetters('messages', {imageList: 'getImageList'}),
     //   imageList() {
     //     return this.$store.getters['messages/getImageList'];
     //   },
-
   },
 });
 </script>

@@ -48,10 +48,6 @@ export default defineComponent({
     };
   },
 
-  data() {
-    return {};
-  },
-
   name: 'calendar',
 
   components: {
