@@ -30,12 +30,6 @@ export default defineComponent({
     };
   },
 
-  data() {
-    return {
-      // showStats: false,
-    };
-  },
-
   name: 'layout',
 
   components: {
@@ -43,9 +37,6 @@ export default defineComponent({
     TheHeader,
   },
 
-  mounted() {
-    // this.$store.commit('modifyNotofis', '~');
-  },
 });
 </script>
 

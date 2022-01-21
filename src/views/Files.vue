@@ -7,12 +7,20 @@ ul.list
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, computed} from 'vue';
 import {mapState, mapGetters} from 'vuex';
+import {useStore} from 'vuex';
 
 export default defineComponent({
-  data() {
-    return {};
+  setup() {
+    const store = useStore();
+    const imageList = computed(() => {
+      return store.getters['messages/getImageList'];
+    });
+
+    return {
+      imageList,
+    };
   },
 
   name: 'files',
@@ -24,13 +32,17 @@ export default defineComponent({
   methods: {},
 
   computed: {
-    ...mapState({
-      MessageList(state: any): any {
-        return state.messages.MessageList;
-      },
-    }),
+    // ...mapState({
+    //   MessageList(state: any): any {
+    //     return state.messages.MessageList;
+    //   },
+    // }),
 
-    ...mapGetters('messages', {imageList: 'getImageList'}),
+    // ...mapGetters('messages', {imageList: 'getImageList'}),
+    //   imageList() {
+    //     return this.$store.getters['messages/getImageList'];
+    //   },
+
   },
 });
 </script>
