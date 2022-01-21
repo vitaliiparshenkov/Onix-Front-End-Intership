@@ -22,7 +22,7 @@ form(@submit.prevent="onSubmit")
         br
         label(for="date") Complete&nbsp;date
           em *
-        datepicker.date-class(id="date" v-model="compDate" :lowerLimit="from" readonly :disabled="isDisable" :inputFormat="inputFormat")
+        datepicker.date-class(id="date" v-model="compDate" :lowerLimit="from" readonly :disabled="isDisable" :inputFormat="inputFormat" startingView="day")
     button(type="submit" :class="{hidden: !visible}") {{buttonCaption}}
     p.wrong(v-show="showMessageWrongPeriod") Completed tasks cannot be edited
 </template>
@@ -112,11 +112,13 @@ export default defineComponent({
         taskId: -1,
         name: '',
         desc: '',
-        completionDate: this.getDateInStringFormat(new Date()),
+        completionDate: this.getDateInStringFormat(new Date(), 5),
+        createDate: this.getDateInStringFormat(new Date()),
         completed: false,
         show: false,
         status: StatusEnum.Todo,
       };
+      this.compDate = new Date(this.changeRecord.completionDate);
     }
   },
 

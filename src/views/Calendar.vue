@@ -1,6 +1,6 @@
 <template lang="pug">
 h1 Event Calendar
-Calendar(:attributes="attributes" title-position="left" is-expanded )
+Calendar(:attributes="attributes" title-position="left" is-expanded)
 
 </template>
 
@@ -26,31 +26,37 @@ export default defineComponent({
 
   computed: {
     ...mapState('todos', {todoList: 'todoList'}),
+    // todoList(): any {
+    //   return this.$store.state.todos.todoList;
+    // },
 
     attributes() {
       return [
-        // ...this.$store.modules.todos.state.todoList.map((todo: TodoInterface) => ({
-        //   dates: todo.completionDate,
-        //   dot: false,
-        //   popover: {
-        //     label: todo.name,
-        //     visibility: 'click',
-        //     // hideIndicator: true,
-        //     style: {
-        //       backgroundColor: 'red',
-        //     },
-        //   },
-        //   // customData: todo,
-        //   highlight: {
-        //     color: 'indigo',
-        //     fillMode: 'solid',
-        //     style: {
-        //       borderRadius: 0,
-        //     },
-        //   },
-        // })),
+        ...this.todoList.map((todo: TodoInterface) => ({
+          dates: todo.createDate,
+          dot: false,
+          popover: {
+            label: todo.name,
+            visibility: 'click',
+            // hideIndicator: true,
+            style: {
+              backgroundColor: 'red',
+            },
+          },
+          // customData: todo,
+          highlight: {
+            color: 'indigo',
+            fillMode: 'solid',
+            style: {
+              borderRadius: 0,
+            },
+          },
+        })),
       ];
     },
+
+
+
   },
 });
 </script>

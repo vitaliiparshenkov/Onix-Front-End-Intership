@@ -3,6 +3,7 @@ export interface TodoInterface {
   name: string;
   desc: string;
   completionDate: string;
+  createDate: string;
   completed?: boolean;
   show: boolean;
   status: StatusEnum;
