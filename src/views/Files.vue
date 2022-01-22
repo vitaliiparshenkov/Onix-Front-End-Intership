@@ -30,17 +30,7 @@ export default defineComponent({
 
   methods: {},
 
-  computed: {
-    // ...mapState({
-    //   MessageList(state: any): any {
-    //     return state.messages.MessageList;
-    //   },
-    // }),
-    // ...mapGetters('messages', {imageList: 'getImageList'}),
-    //   imageList() {
-    //     return this.$store.getters['messages/getImageList'];
-    //   },
-  },
+  computed: {},
 });
 </script>
 

@@ -100,19 +100,19 @@ const store = {
         },
     },
     mutations: {
-        addTodo(state, payload) {
+        ADD_TODO(state, payload) {
             state.todoList.push(payload);
         },
-        modifyTodo(state, { id, task }) {
+        MODIFY_TODO(state, { id, task }) {
             state.todoList[id] = task;
         },
-        removeTodo(state, payload) {
+        REMOVE_TODO(state, payload) {
             state.todoList.splice(payload, 1);
         },
     },
     actions: {
         modifyTodo(context, data) {
-            context.commit('modifyTodo', data);
+            context.commit('MODIFY_TODO', data);
         },
     },
 };

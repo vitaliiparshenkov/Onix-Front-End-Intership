@@ -69,7 +69,7 @@ export default defineComponent({
   emits: {},
 
   methods: {
-    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
+    ...mapActions('todos', {changeTodo: 'MODIFY_TODO'}),
 
     modifyTask(taskId: number) {
       this.modifyTaskId = taskId;

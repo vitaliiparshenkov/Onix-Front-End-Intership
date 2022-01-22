@@ -25,7 +25,7 @@ export default defineComponent({
     },
   },
 
-  emits: {},
+  emits: {'closeModalWindow': null,},
 
   methods: {
     closeModalWindow() {

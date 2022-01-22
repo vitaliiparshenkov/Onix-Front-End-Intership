@@ -30,20 +30,94 @@ div(v-else)
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, onMounted, computed} from 'vue';
 import {StatusEnum} from '@/types/task.interface';
 import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-import {mapState, mapMutations} from 'vuex';
+import {useStore, mapState, mapMutations} from 'vuex';
 
 export default defineComponent({
+  setup() {
+    const elList = ref([]);
+    const isOpenModal = ref(false);
+    const modifyTaskId = ref(-1);
+    const store = useStore();
+    let todoList = computed(() => {
+      return store.state.todos.todoList;
+    });
+    // const StatusEnum = ref<StatusEnum>();
+
+    const goByElem = () => {
+      for (let i = 0; i < elList.value.length; i++) {
+        let el: HTMLElement = elList.value[i];
+        if (el) {
+          setTimeout(() => {
+            el.classList.add('scale');
+          }, i * 200);
+        }
+      }
+      setTimeout(removeClass, (elList.value.length - 1) * 500, 'scale');
+    };
+    const removeClass = (className: string) => {
+      let el: HTMLElement;
+      for (let i = 0; i < elList.value.length; i++) {
+        el = elList.value[i];
+        if (el) {
+          el.classList.remove(className);
+        }
+      }
+    };
+    const isTodoStatusDone = (status: StatusEnum) => {
+      if (status === StatusEnum.Done) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+    const modifyTask = (taskId: number) => {
+      modifyTaskId.value = taskId;
+      isOpenModal.value = true;
+    };
+    const closeModalWindow = () => {
+      isOpenModal.value = false;
+      if (modifyTaskId.value != -1) {
+        modifyTaskId.value = -1;
+      }
+    };
+    const removeTask = (i: number) => {
+      store.commit('todos/REMOVE_TODO', i);
+    };
+    const saveTask = () => {
+      setTimeout(removeClass, 3000, 'blink');
+      closeModalWindow();
+    };
+
+    onMounted(() => {
+      removeClass('blink');
+      goByElem();
+    });
+
+    return {
+      // StatusEnum,
+      elList,
+      isOpenModal,
+      modifyTaskId,
+      isTodoStatusDone,
+      todoList,
+      modifyTask,
+      closeModalWindow,
+      removeTask,
+      saveTask,
+    };
+  },
+
   data() {
     return {
       StatusEnum,
-      elList: ref([]),
-      isOpenModal: false,
-      modifyTaskId: -1,
+      // elList: ref([]),
+      // isOpenModal: false,
+      // modifyTaskId: -1,
     };
   },
 
@@ -61,68 +135,68 @@ export default defineComponent({
   },
 
   methods: {
-    ...mapMutations('todos', ['removeTodo']),
+    // ...mapMutations('todos', ['REMOVE_TODO']),
 
-    modifyTask(taskId: number) {
-      this.modifyTaskId = taskId;
-      this.isOpenModal = true;
-    },
+    // modifyTask(taskId: number) {
+    //   this.modifyTaskId = taskId;
+    //   this.isOpenModal = true;
+    // },
 
-    saveTask(): void {
-      setTimeout(this.removeClass, 3000, 'blink');
-      this.closeModalWindow();
-    },
+    // saveTask(): void {
+    //   setTimeout(this.removeClass, 3000, 'blink');
+    //   this.closeModalWindow();
+    // },
 
-    removeTask(i: number): void {
-      this.removeTodo(i);
-    },
+    // removeTask(i: number): void {
+    //   this.REMOVE_TODO(i);
+    // },
+	//
+    // closeModalWindow() {
+    //   this.isOpenModal = false;
+    //   if (this.modifyTaskId != -1) {
+    //     this.modifyTaskId = -1;
+    //   }
+    // },
 
-    closeModalWindow() {
-      this.isOpenModal = false;
-      if (this.modifyTaskId != -1) {
-        this.modifyTaskId = -1;
-      }
-    },
+    // goByElem() {
+    //   for (let i = 0; i < this.elList.length; i++) {
+    //     let el: HTMLElement = this.elList[i];
+    //     if (el) {
+    //       setTimeout(() => {
+    //         el.classList.add('scale');
+    //       }, i * 200);
+    //     }
+    //   }
+    //   setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
+    // },
 
-    goByElem() {
-      for (let i = 0; i < this.elList.length; i++) {
-        let el: HTMLElement = this.elList[i];
-        if (el) {
-          setTimeout(() => {
-            el.classList.add('scale');
-          }, i * 200);
-        }
-      }
-      setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
-    },
+    // removeClass(className: string) {
+    //   let el: HTMLElement;
+    //   for (let i = 0; i < this.elList.length; i++) {
+    //     el = this.elList[i];
+    //     if (el) {
+    //       el.classList.remove(className);
+    //     }
+    //   }
+    // },
 
-    removeClass(className: string) {
-      let el: HTMLElement;
-      for (let i = 0; i < this.elList.length; i++) {
-        el = this.elList[i];
-        if (el) {
-          el.classList.remove(className);
-        }
-      }
-    },
-
-    isTodoStatusDone(status: StatusEnum): boolean {
-      if (status === StatusEnum.Done) {
-        return true;
-      } else {
-        return false;
-      }
-    },
+    // isTodoStatusDone(status: StatusEnum): boolean {
+    //   if (status === StatusEnum.Done) {
+    //     return true;
+    //   } else {
+    //     return false;
+    //   }
+    // },
   },
 
   mounted() {
-    this.removeClass('blink');
-    this.goByElem();
+    // this.removeClass('blink');
+    // this.goByElem();
   },
 
   computed: {
     //--- 0 variant
-    ...mapState('todos', {todoList: 'todoList'}),
+    // ...mapState('todos', {todoList: 'todoList'}),
 
     //--- 1 variant
     // ...mapState({globalTodoList: 'todoList'}),

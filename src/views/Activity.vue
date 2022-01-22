@@ -17,7 +17,6 @@ p.day today
 
 <script lang="ts">
 import {defineComponent, computed} from 'vue';
-import {mapState, mapMutations} from 'vuex';
 import {useStore} from 'vuex';
 
 export default defineComponent({
@@ -30,7 +29,7 @@ export default defineComponent({
 
     function changeNotofis(param: number) {
       store.commit('modifyNotofis', param);
-    };
+    }
 
     return {
       MessageList,

@@ -66,6 +66,8 @@ import {defineComponent} from 'vue';
 import useTheSidebar from '../composables/useTheSidebar';
 
 export default defineComponent({
+  name: 'sidebar',
+
   setup() {
     const {
       currentUser,
@@ -90,25 +92,6 @@ export default defineComponent({
       showStatistic,
       goTaskPage,
     };
-  },
-
-  name: 'sidebar',
-
-  props: [''],
-
-  // emits: {lockWrapper: null},
-
-  methods: {
-    // changeCompletedTasks() {
-    //   if (confirm('Are you sure you want to change the number of tasks?')) {
-    //     if (this.openTasks > 0) {
-    //       this.completedTasks++;
-    //       this.openTasks--;
-    //     } else {
-    //       alert("Sorry, but you were carried away by your work and did not see that you don't have open projects.");
-    //     }
-    //   }
-    // },
   },
 });
 </script>
