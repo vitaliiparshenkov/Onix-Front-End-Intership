@@ -111,7 +111,7 @@ const store = {
         },
     },
     actions: {
-        modifyTodo(context, data) {
+        AC_MODIFY_TODO(context, data) {
             context.commit('MODIFY_TODO', data);
         },
     },

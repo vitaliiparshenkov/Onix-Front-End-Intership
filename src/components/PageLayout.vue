@@ -24,7 +24,6 @@ export default defineComponent({
     onMounted(() => {
       store.commit('modifyNotofis', '~');
       showStats.value = store.state.showStats;
-      // store.commit('modifyShowStats', showStats.value);
     });
 
     return {

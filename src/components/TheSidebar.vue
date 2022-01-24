@@ -62,24 +62,40 @@ aside
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import useTheSidebar from '../composables/useTheSidebar';
+import {defineComponent, computed, ref} from 'vue';
+import {useStore} from 'vuex';
+import theSidebarMethods from '../composables/theSidebarMethods';
+import {CurrentUserInterface} from '@/types/user.interface.ts';
 
 export default defineComponent({
   name: 'sidebar',
 
   setup() {
+    const store = useStore();
+
+    const currentUser: CurrentUserInterface = {
+      name: 'Jean Gonzales',
+      position: 'Product Owner',
+      avatar: require('@/assets/foto_1.jpg'),
+    };
+    const showStats = ref(false);
+    const showBurgerMenu = ref(false);
+
+    const notificationsCount = computed(() => {
+      return store.state.notificationsCount;
+    });
+    const completedTasks = computed(() => {
+      return store.getters['todos/getCountDones'];
+    });
+    const openTasks = computed(() => {
+      return store.getters['todos/getCountOpenTasks'];
+    });
+
     const {
-      currentUser,
-      showStats,
-      showBurgerMenu,
-      notificationsCount,
-      completedTasks,
-      openTasks,
       showBurger,
       showStatistic,
       goTaskPage,
-    } = useTheSidebar();
+    } = theSidebarMethods(showStats, showBurgerMenu);
 
     return {
       notificationsCount,

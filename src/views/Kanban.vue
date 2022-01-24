@@ -32,27 +32,101 @@ form#search(@submit.prevent="onSubmitSearch")
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import {TodoInterface, StatusEnum} from '@/types/task.interface';
-import dateInStringFormat from '@/mixins/dateInStringFormat';
+import {defineComponent, ref, watchEffect, computed} from 'vue';
+import {StatusEnum} from '@/types/task.interface';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 import Datepicker from 'vue3-date-time-picker';
 import 'vue3-date-time-picker/dist/main.css';
-import {mapState, mapActions} from 'vuex';
+import {useStore} from 'vuex';
+import kanbanDragDrop from '../composables/kanbanDragDrop';
+import kanbanMethods from '../composables/kanbanMethods';
 
-let todoId = -1;
+// let todoId = -1;
 
 export default defineComponent({
-  data() {
+  setup() {
+    const store = useStore();
+
+    let todoId = -1;
+    const date = ref([]);
+    const search = ref('');
+    const isOpenModal = ref(false);
+    const serchDateBoxHide = ref(true);
+    const modifyTaskId = ref(-1);
+
+    const todoList = computed(() => {
+      return store.state.todos.todoList;
+    });
+
+    const {dragStart, dragEnd, dragDrop} = kanbanDragDrop(todoId);
+    const {
+      onSubmitSearch,
+      format,
+      showDateString,
+      onClearInputSearch,
+      getClassDependentOn,
+      getClassStatus,
+      getTodoType,
+      getCountTodoStatus,
+    } = kanbanMethods(date, search, serchDateBoxHide);
+
+    const saveTask = (): void => {
+      closeModalWindow();
+    };
+    const modifyTask = (taskId: number) => {
+      modifyTaskId.value = taskId;
+      isOpenModal.value = true;
+    };
+    const closeModalWindow = () => {
+      isOpenModal.value = false;
+      modifyTaskId.value = -1;
+    };
+
+    watchEffect(() => {
+      if (date.value === null) {
+        date.value = [];
+      }
+      onSubmitSearch();
+    });
+    //watch(propName, funcName);
+
     return {
       StatusEnum,
-      date: [],
-      search: '',
-      filterSelect: 'all',
-      isOpenModal: false,
-      serchDateBoxHide: true,
-      modifyTaskId: -1,
+      date,
+      search,
+      isOpenModal,
+      modifyTaskId,
+      serchDateBoxHide,
+      todoList,
+
+      dragStart,
+      dragEnd,
+      dragDrop,
+
+      onSubmitSearch,
+      format,
+      showDateString,
+      onClearInputSearch,
+      getClassDependentOn,
+      getClassStatus,
+      getTodoType,
+      getCountTodoStatus,
+      modifyTask,
+      saveTask,
+      closeModalWindow,
+    };
+  },
+
+  data() {
+    return {
+      // StatusEnum,
+      // date: [],
+      // search: '',
+      // filterSelect: 'all',
+      // isOpenModal: false,
+      // serchDateBoxHide: true,
+      // modifyTaskId: -1,
     };
   },
 
@@ -64,149 +138,137 @@ export default defineComponent({
 
   props: [],
 
-  mixins: [dateInStringFormat],
+  // mixins: [dateInStringFormat],
 
   emits: {},
 
   methods: {
-    ...mapActions('todos', {changeTodo: 'MODIFY_TODO'}),
-
-    modifyTask(taskId: number) {
-      this.modifyTaskId = taskId;
-      this.isOpenModal = true;
-    },
-
-    saveTask(): void {
-      this.closeModalWindow();
-    },
-
-    closeModalWindow() {
-      this.isOpenModal = false;
-      this.modifyTaskId = -1;
-    },
-
-    getTodoType(status: string) {
-      return this.onSubmitSearch().filter((el: TodoInterface) => el.status === status);
-    },
-
-    getCountTodoStatus(status: string) {
-      return this.todoList.filter((el: TodoInterface) => el.status === status).length;
-    },
-
-    getClassStatus(date_: any): string {
-      const currentDate = Date.now();
-      const completionDate = new Date(date_);
-      if (currentDate > completionDate.getTime()) {
-        return 'fa-hourglass-end';
-      } else {
-        if (completionDate.getTime() - currentDate <= 86400000) {
-          return 'fa-calendar-day';
-        } else {
-          return 'fa-calendar-alt';
-        }
-      }
-    },
-
-    getClassDependentOn(status: StatusEnum): string {
-      switch (status) {
-        case StatusEnum.Todo:
-          return 'to-do';
-        case StatusEnum.Inprogress:
-          return 'in-progress';
-        case StatusEnum.Done:
-          return 'do-ne';
-      }
-    },
-
-    onSubmitSearch() {
-      if (this.date.length != 0) {
-        return this.todoList.filter(
-          (el: TodoInterface) =>
-            el.name.toLowerCase().includes(this.search.toLowerCase()) &&
-            new Date(el.completionDate) >= new Date(this.getDateInStringFormat(this.date[0])) &&
-            new Date(el.completionDate) <= new Date(this.getDateInStringFormat(this.date[1])),
-        );
-      } else {
-        return this.todoList.filter((el: TodoInterface) => el.name.toLowerCase().includes(this.search.toLowerCase()));
-      }
-    },
-
-    onClearInputSearch() {
-      this.search = '';
-    },
-
-    showDateString() {
-      this.serchDateBoxHide = !this.serchDateBoxHide;
-    },
-
-    format(date: any) {
-      const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
-      const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
-      const yearStart = date[0].getFullYear();
-
-      const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
-      const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1) : date[1].getMonth() + 1;
-      const yearEnd = date[1].getFullYear();
-
-      return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
-    },
-
-    dragStart(event: any) {
-      setTimeout(() => {
-        event.target.classList.add('hide');
-      }, 0);
-      todoId = event.target.id.slice(7);
-    },
-
-    dragEnd(event: any) {
-      event.target.classList.remove('hide');
-    },
-
-    dragDrop(event: any) {
-      event.preventDefault();
-      const zone = event.currentTarget.className;
-      if (todoId != -1 && zone) {
-        let changesObject = {...this.todoList[todoId]};
-        switch (zone) {
-          case StatusEnum.Todo:
-            if (this.todoList[todoId].status != StatusEnum.Done) {
-              changesObject.status = StatusEnum.Todo;
-            }
-            break;
-          case StatusEnum.Inprogress:
-            changesObject.status = StatusEnum.Inprogress;
-            break;
-          case StatusEnum.Done:
-            changesObject.status = StatusEnum.Done;
-            break;
-        }
-
-        this.changeTodo({id: todoId, task: {...changesObject}});
-      }
-      setTimeout(() => {
-        let item = document.querySelector('#todoId_' + todoId);
-        if (item != null) {
-          item.classList.add('selected');
-        }
-      }, 0);
-    },
+    // ...mapActions('todos', {changeTodo: 'AC_MODIFY_TODO'}),
+    // modifyTask(taskId: number) {
+    //   this.modifyTaskId = taskId;
+    //   this.isOpenModal = true;
+    // },
+    //
+    // saveTask(): void {
+    //   this.closeModalWindow();
+    // },
+    //
+    // closeModalWindow() {
+    //   this.isOpenModal = false;
+    //   this.modifyTaskId = -1;
+    // },
+    // getTodoType(status: string) {
+    //   return this.onSubmitSearch().filter((el: TodoInterface) => el.status === status);
+    // },
+    //
+    // getCountTodoStatus(status: string) {
+    //   return this.todoList.filter((el: TodoInterface) => el.status === status).length;
+    // },
+    // getClassStatus(date_: any): string {
+    //   const currentDate = Date.now();
+    //   const completionDate = new Date(date_);
+    //   if (currentDate > completionDate.getTime()) {
+    //     return 'fa-hourglass-end';
+    //   } else {
+    //     if (completionDate.getTime() - currentDate <= 86400000) {
+    //       return 'fa-calendar-day';
+    //     } else {
+    //       return 'fa-calendar-alt';
+    //     }
+    //   }
+    // },
+    // getClassDependentOn(status: StatusEnum): string {
+    //   switch (status) {
+    //     case StatusEnum.Todo:
+    //       return 'to-do';
+    //     case StatusEnum.Inprogress:
+    //       return 'in-progress';
+    //     case StatusEnum.Done:
+    //       return 'do-ne';
+    //   }
+    // },
+    // onSubmitSearch() {
+    //   if (this.date.length != 0) {
+    //     return this.todoList.filter(
+    //       (el: TodoInterface) =>
+    //         el.name.toLowerCase().includes(this.search.toLowerCase()) &&
+    //         new Date(el.completionDate) >= new Date(this.getDateInStringFormat(this.date[0])) &&
+    //         new Date(el.completionDate) <= new Date(this.getDateInStringFormat(this.date[1])),
+    //     );
+    //   } else {
+    //     return this.todoList.filter((el: TodoInterface) => el.name.toLowerCase().includes(this.search.toLowerCase()));
+    //   }
+    // },
+    // onClearInputSearch() {
+    //   this.search = '';
+    // },
+    // showDateString() {
+    //   this.serchDateBoxHide = !this.serchDateBoxHide;
+    // },
+    // format(date: any) {
+    //   const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
+    //   const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
+    //   const yearStart = date[0].getFullYear();
+    //
+    //   const dayEnd = date[1].getDate() < 10 ? '0' + date[1].getDate() : date[1].getDate();
+    //   const monthEnd = date[1].getMonth() + 1 < 10 ? '0' + (date[1].getMonth() + 1) : date[1].getMonth() + 1;
+    //   const yearEnd = date[1].getFullYear();
+    //
+    //   return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
+    // },
+    // dragStart(event: any) {
+    //   setTimeout(() => {
+    //     event.target.classList.add('hide');
+    //   }, 0);
+    //   todoId = event.target.id.slice(7);
+    // },
+    // dragEnd(event: any) {
+    //   event.target.classList.remove('hide');
+    // },
+    // dragDrop(event: any) {
+    //   event.preventDefault();
+    //   const zone = event.currentTarget.className;
+    //   if (todoId != -1 && zone) {
+    //     let changesObject = {...this.todoList[todoId]};
+    //     switch (zone) {
+    //       case StatusEnum.Todo:
+    //         if (this.todoList[todoId].status != StatusEnum.Done) {
+    //           changesObject.status = StatusEnum.Todo;
+    //         }
+    //         break;
+    //       case StatusEnum.Inprogress:
+    //         changesObject.status = StatusEnum.Inprogress;
+    //         break;
+    //       case StatusEnum.Done:
+    //         changesObject.status = StatusEnum.Done;
+    //         break;
+    //     }
+    //
+    //     this.changeTodo({id: todoId, task: {...changesObject}});
+    //   }
+    //   setTimeout(() => {
+    //     let item = document.querySelector('#todoId_' + todoId);
+    //     if (item != null) {
+    //       item.classList.add('selected');
+    //     }
+    //   }, 0);
+    // },
   },
 
   computed: {
-    ...mapState('todos', ['todoList']),
+    // ...mapState('todos', ['todoList']),
   },
 
   watch: {
-    search() {
-      this.onSubmitSearch();
-    },
-
-    date(currVal, oldVal) {
-      if (currVal === null) {
-        this.date = [];
-      }
-      this.onSubmitSearch();
-    },
+    // search() {
+    //   this.onSubmitSearch();
+    // },
+    // date(currVal, oldVal) {
+    //   if (currVal === null) {
+    //     this.date = [];
+    //   }
+    //   this.onSubmitSearch();
+    // },
   },
 });
 </script>

@@ -46,18 +46,18 @@ export default defineComponent({
     // const showMessageWrongPeriod = ref(false);
     // let from = new Date();
     // let inputFormat = 'MM/dd/yyyy';
-	//
+    //
     // const buttonCaption = computed(() => {
     //   switch (statusOper.value) {
     //     case StatusOperation.Edit:
     //       return StatusOperation[1];
-	//
+    //
     //     case StatusOperation.Cancel:
     //       return StatusOperation[2];
-	//
+    //
     //     case StatusOperation.Save:
     //       return StatusOperation[3];
-	//
+    //
     //     default:
     //       return StatusOperation[0];
     //   }
@@ -107,9 +107,9 @@ export default defineComponent({
     //     }, 3000);
     //   }
     // };
-	//
+    //
     // const store = useStore();
-	//
+    //
     // if (props.modifyTaskId != -1) {
     //   changeRecord.value = {...store.state.todoList[props.modifyTaskId]};
     //   isDisable.value = true;
@@ -126,7 +126,7 @@ export default defineComponent({
     //     status: StatusEnum.Todo,
     //   };
     // }
-	//
+    //
     // onMounted(waitForChange);
 
     // watch(compDate, (newValue, oldValue) => {
@@ -181,7 +181,7 @@ export default defineComponent({
 
     //--- 2 variant
     ...mapMutations('todos', {addNewTodo: 'ADD_TODO'}),
-    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
+    ...mapActions('todos', {changeTodo: 'AC_MODIFY_TODO'}),
 
     onSubmit() {
       //-- Edit -----

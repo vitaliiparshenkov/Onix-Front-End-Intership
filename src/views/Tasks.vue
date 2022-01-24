@@ -32,65 +32,41 @@ div(v-else)
 <script lang="ts">
 import {defineComponent, ref, onMounted, computed} from 'vue';
 import {StatusEnum} from '@/types/task.interface';
-import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-import {useStore, mapState, mapMutations} from 'vuex';
+import {useStore} from 'vuex';
+import taskMethods from '../composables/taskMethods';
 
 export default defineComponent({
   setup() {
+    const store = useStore();
+
     const elList = ref([]);
     const isOpenModal = ref(false);
     const modifyTaskId = ref(-1);
-    const store = useStore();
-    let todoList = computed(() => {
+
+    const todoList = computed(() => {
       return store.state.todos.todoList;
     });
-    // const StatusEnum = ref<StatusEnum>();
 
-    const goByElem = () => {
-      for (let i = 0; i < elList.value.length; i++) {
-        let el: HTMLElement = elList.value[i];
-        if (el) {
-          setTimeout(() => {
-            el.classList.add('scale');
-          }, i * 200);
-        }
-      }
-      setTimeout(removeClass, (elList.value.length - 1) * 500, 'scale');
-    };
-    const removeClass = (className: string) => {
-      let el: HTMLElement;
-      for (let i = 0; i < elList.value.length; i++) {
-        el = elList.value[i];
-        if (el) {
-          el.classList.remove(className);
-        }
-      }
-    };
-    const isTodoStatusDone = (status: StatusEnum) => {
-      if (status === StatusEnum.Done) {
-        return true;
-      } else {
-        return false;
-      }
+    const {goByElem, removeClass, isTodoStatusDone} = taskMethods(elList);
+
+    const saveTask = () => {
+      setTimeout(removeClass, 3000, 'blink');
+      closeModalWindow();
     };
     const modifyTask = (taskId: number) => {
       modifyTaskId.value = taskId;
       isOpenModal.value = true;
+    };
+    const removeTask = (i: number) => {
+      store.commit('todos/REMOVE_TODO', i);
     };
     const closeModalWindow = () => {
       isOpenModal.value = false;
       if (modifyTaskId.value != -1) {
         modifyTaskId.value = -1;
       }
-    };
-    const removeTask = (i: number) => {
-      store.commit('todos/REMOVE_TODO', i);
-    };
-    const saveTask = () => {
-      setTimeout(removeClass, 3000, 'blink');
-      closeModalWindow();
     };
 
     onMounted(() => {
@@ -99,22 +75,23 @@ export default defineComponent({
     });
 
     return {
-      // StatusEnum,
+      StatusEnum,
       elList,
       isOpenModal,
       modifyTaskId,
       isTodoStatusDone,
       todoList,
-      modifyTask,
-      closeModalWindow,
-      removeTask,
+
       saveTask,
+      modifyTask,
+      removeTask,
+      closeModalWindow,
     };
   },
 
   data() {
     return {
-      StatusEnum,
+      // StatusEnum,
       // elList: ref([]),
       // isOpenModal: false,
       // modifyTaskId: -1,
@@ -128,7 +105,7 @@ export default defineComponent({
 
   props: [''],
 
-  mixins: [dateInStringFormat],
+  // mixins: [dateInStringFormat],
 
   emits: {
     // 'change-notifis': null,
@@ -136,28 +113,24 @@ export default defineComponent({
 
   methods: {
     // ...mapMutations('todos', ['REMOVE_TODO']),
-
     // modifyTask(taskId: number) {
     //   this.modifyTaskId = taskId;
     //   this.isOpenModal = true;
     // },
-
     // saveTask(): void {
     //   setTimeout(this.removeClass, 3000, 'blink');
     //   this.closeModalWindow();
     // },
-
     // removeTask(i: number): void {
     //   this.REMOVE_TODO(i);
     // },
-	//
+    //
     // closeModalWindow() {
     //   this.isOpenModal = false;
     //   if (this.modifyTaskId != -1) {
     //     this.modifyTaskId = -1;
     //   }
     // },
-
     // goByElem() {
     //   for (let i = 0; i < this.elList.length; i++) {
     //     let el: HTMLElement = this.elList[i];
@@ -169,7 +142,6 @@ export default defineComponent({
     //   }
     //   setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
     // },
-
     // removeClass(className: string) {
     //   let el: HTMLElement;
     //   for (let i = 0; i < this.elList.length; i++) {
@@ -179,7 +151,6 @@ export default defineComponent({
     //     }
     //   }
     // },
-
     // isTodoStatusDone(status: StatusEnum): boolean {
     //   if (status === StatusEnum.Done) {
     //     return true;
@@ -197,20 +168,16 @@ export default defineComponent({
   computed: {
     //--- 0 variant
     // ...mapState('todos', {todoList: 'todoList'}),
-
     //--- 1 variant
     // ...mapState({globalTodoList: 'todoList'}),
-
     //--- 2 variant
     // ...mapState(['todoList']),
-
     //--- 3 variant
     // ...mapState({
     //   todoList(state: any): any {
     //     return state.todoList;
     //   },
     // }),
-
     //--- 4 variant
     // todoList(): any {
     //   return this.$store.state.todoList;
