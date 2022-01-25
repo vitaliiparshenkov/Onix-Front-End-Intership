@@ -91,11 +91,7 @@ export default defineComponent({
       return store.getters['todos/getCountOpenTasks'];
     });
 
-    const {
-      showBurger,
-      showStatistic,
-      goTaskPage,
-    } = theSidebarMethods(showStats, showBurgerMenu);
+    const {showBurger, showStatistic, goTaskPage} = theSidebarMethods(showStats, showBurgerMenu);
 
     return {
       notificationsCount,

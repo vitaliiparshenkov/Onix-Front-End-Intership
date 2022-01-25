@@ -23,14 +23,6 @@ export default defineComponent({
   },
 
   name: 'files',
-
-  emits: {},
-
-  components: {},
-
-  methods: {},
-
-  computed: {},
 });
 </script>
 

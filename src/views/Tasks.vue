@@ -89,99 +89,9 @@ export default defineComponent({
     };
   },
 
-  data() {
-    return {
-      // StatusEnum,
-      // elList: ref([]),
-      // isOpenModal: false,
-      // modifyTaskId: -1,
-    };
-  },
-
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
-  },
-
-  props: [''],
-
-  // mixins: [dateInStringFormat],
-
-  emits: {
-    // 'change-notifis': null,
-  },
-
-  methods: {
-    // ...mapMutations('todos', ['REMOVE_TODO']),
-    // modifyTask(taskId: number) {
-    //   this.modifyTaskId = taskId;
-    //   this.isOpenModal = true;
-    // },
-    // saveTask(): void {
-    //   setTimeout(this.removeClass, 3000, 'blink');
-    //   this.closeModalWindow();
-    // },
-    // removeTask(i: number): void {
-    //   this.REMOVE_TODO(i);
-    // },
-    //
-    // closeModalWindow() {
-    //   this.isOpenModal = false;
-    //   if (this.modifyTaskId != -1) {
-    //     this.modifyTaskId = -1;
-    //   }
-    // },
-    // goByElem() {
-    //   for (let i = 0; i < this.elList.length; i++) {
-    //     let el: HTMLElement = this.elList[i];
-    //     if (el) {
-    //       setTimeout(() => {
-    //         el.classList.add('scale');
-    //       }, i * 200);
-    //     }
-    //   }
-    //   setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
-    // },
-    // removeClass(className: string) {
-    //   let el: HTMLElement;
-    //   for (let i = 0; i < this.elList.length; i++) {
-    //     el = this.elList[i];
-    //     if (el) {
-    //       el.classList.remove(className);
-    //     }
-    //   }
-    // },
-    // isTodoStatusDone(status: StatusEnum): boolean {
-    //   if (status === StatusEnum.Done) {
-    //     return true;
-    //   } else {
-    //     return false;
-    //   }
-    // },
-  },
-
-  mounted() {
-    // this.removeClass('blink');
-    // this.goByElem();
-  },
-
-  computed: {
-    //--- 0 variant
-    // ...mapState('todos', {todoList: 'todoList'}),
-    //--- 1 variant
-    // ...mapState({globalTodoList: 'todoList'}),
-    //--- 2 variant
-    // ...mapState(['todoList']),
-    //--- 3 variant
-    // ...mapState({
-    //   todoList(state: any): any {
-    //     return state.todoList;
-    //   },
-    // }),
-    //--- 4 variant
-    // todoList(): any {
-    //   return this.$store.state.todoList;
-    // },
   },
 });
 </script>

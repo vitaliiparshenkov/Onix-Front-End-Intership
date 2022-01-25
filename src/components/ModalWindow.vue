@@ -11,13 +11,9 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, onMounted, onBeforeUnmount} from 'vue';
 
 export default defineComponent({
-  data() {
-    return {};
-  },
-
   props: {
     isOpen: {
       type: Boolean,
@@ -25,25 +21,32 @@ export default defineComponent({
     },
   },
 
-  emits: {'closeModalWindow': null,},
+  setup(props, {emit}) {
+    const closeModalWindow = () => {
+      emit('closeModalWindow');
+    };
 
-  methods: {
-    closeModalWindow() {
-      this.$emit('closeModalWindow');
-    },
-    handleKeydown(e: any) {
+    const handleKeydown = (e: any) => {
       if (e.key === 'Escape') {
-        this.closeModalWindow();
+        closeModalWindow();
       }
-    },
+    };
+
+    onMounted(() => {
+      document.addEventListener('keydown', handleKeydown);
+    });
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('keydown', handleKeydown);
+    });
+
+    return {
+      closeModalWindow,
+    };
   },
 
-  mounted() {
-    document.addEventListener('keydown', this.handleKeydown);
-  },
-
-  beforeUnmount() {
-    document.removeEventListener('keydown', this.handleKeydown);
+  emits: {
+    closeModalWindow: null,
   },
 });
 </script>

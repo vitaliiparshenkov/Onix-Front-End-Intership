@@ -54,8 +54,6 @@ export default defineComponent({
     Calendar,
     DatePicker,
   },
-
-  emits: {},
 });
 </script>
 

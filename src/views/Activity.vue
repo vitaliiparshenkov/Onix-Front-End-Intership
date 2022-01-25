@@ -38,23 +38,5 @@ export default defineComponent({
   },
 
   name: 'activity',
-
-  props: [''],
-
-  emits: {
-    // 'change-notifis': null,
-  },
-
-  methods: {
-    // ...mapMutations({changeNotofis: 'modifyNotofis'}),
-  },
-
-  computed: {
-    // ...mapState({
-    //   MessageList(state: any): any {
-    //     return state.messages.MessageList;
-    //   },
-    // }),
-  },
 });
 </script>
