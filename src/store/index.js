@@ -9,11 +9,15 @@ const vuexLocal = new VuexPersist({
 export default createStore({
     state: {
         notificationsCount: '~',
+        showStats: false,
     },
     getters: {},
     mutations: {
         modifyNotofis(state, payload) {
             state.notificationsCount = payload;
+        },
+        modifyShowStats(state, payload) {
+            state.showStats = payload;
         },
     },
     actions: {},

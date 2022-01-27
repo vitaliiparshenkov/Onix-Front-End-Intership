@@ -2,7 +2,6 @@ export interface CurrentUserInterface {
   readonly name: string;
   position: string;
   avatar: string;
-  name2: string;
 }
 
 export interface UserInterface {

@@ -28,118 +28,28 @@ form(@submit.prevent="onSubmit")
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, ref, computed, watch, onMounted, reactive} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
 import Datepicker from 'vue3-datepicker';
-import dateInStringFormat from '@/mixins/dateInStringFormat';
-import {mapState, mapMutations, mapActions} from 'vuex';
+import getDateInStringFormat from '../composables/getDateInStringFormat';
+import {useStore} from 'vuex';
 
 export default defineComponent({
-  data() {
-    return {
-      compDate: new Date(),
-      visible: true,
-      isDisable: false,
-      statusOper: StatusOperation.Add as StatusOperation,
-      changeRecord: {} as TodoInterface,
-      showMessageWrongPeriod: false,
-      from: new Date(),
-      inputFormat: 'MM/dd/yyyy',
-    };
-  },
-
-  components: {
-    datepicker: Datepicker,
-  },
-
   props: ['modifyTaskId'],
 
-  mixins: [dateInStringFormat],
+  setup(props, {emit}) {
+    const store = useStore();
 
-  emits: {
-    'save-task': null,
-    cancel: null,
-  },
+    const compDate = ref(new Date());
+    const visible = ref(true); // {value: true}
+    const isDisable = ref(false);
+    const statusOper = ref<StatusOperation>(StatusOperation.Add);
+    const showMessageWrongPeriod = ref(false);
+    const from = new Date();
+    const inputFormat = 'MM/dd/yyyy';
 
-  methods: {
-    //--- 1 variant
-    // ...mapMutations(['addTodo']),
-
-    //--- 2 variant
-    ...mapMutations('todos', {addNewTodo: 'addTodo'}),
-    ...mapActions('todos', {changeTodo: 'modifyTodo'}),
-
-    onSubmit() {
-      //-- Edit -----
-      if (this.isDisable) {
-        if (this.changeRecord.status != StatusEnum.Done) {
-          this.isDisable = false;
-          this.statusOper = StatusOperation.Cancel;
-        } else {
-          this.showMessageWrongPeriod = true;
-        } //-- Cancel -----
-      } else if (this.statusOper == StatusOperation.Cancel) {
-        this.$emit('cancel');
-      } else {
-        //-- Add/Edit new task -----
-        if (this.modifyTaskId != -1) {
-          this.changeTodo({id: this.modifyTaskId, task: {...this.changeRecord}});
-        } else {
-          let newId = this.todoList.length;
-          while (this.todoList.findIndex((t: TodoInterface) => t.taskId == newId) != -1) {
-            newId++;
-          }
-          this.changeRecord.taskId = newId;
-          this.addNewTodo(this.changeRecord);
-        }
-        this.$emit('save-task');
-        this.visible = false;
-        setTimeout(() => {
-          this.visible = true;
-        }, 3000);
-      }
-    },
-  },
-
-  created() {
-    if (this.modifyTaskId != -1) {
-      this.changeRecord = {...this.todoList[this.modifyTaskId]};
-      this.isDisable = true;
-      this.statusOper = StatusOperation.Edit;
-      this.compDate = new Date(this.changeRecord.completionDate);
-    } else {
-      this.changeRecord = {
-        taskId: -1,
-        name: '',
-        desc: '',
-        completionDate: this.getDateInStringFormat(new Date(), 5),
-        createDate: this.getDateInStringFormat(new Date()),
-        completed: false,
-        show: false,
-        status: StatusEnum.Todo,
-      };
-      this.compDate = new Date(this.changeRecord.completionDate);
-    }
-  },
-
-  mounted() {
-    if (this.statusOper != StatusOperation.Add) {
-      const changeRec = this.$watch(
-        'changeRecord',
-        () => {
-          this.statusOper = StatusOperation.Save;
-          changeRec();
-        },
-        {deep: true},
-      );
-    }
-  },
-
-  computed: {
-    ...mapState('todos', ['todoList']),
-
-    buttonCaption() {
-      switch (this.statusOper) {
+    const buttonCaption = computed(() => {
+      switch (statusOper.value) {
         case StatusOperation.Edit:
           return StatusOperation[1];
 
@@ -152,17 +62,106 @@ export default defineComponent({
         default:
           return StatusOperation[0];
       }
-    },
+    });
+    const isStatusOperationAdd = computed(() => {
+      return statusOper.value == StatusOperation.Add;
+    });
+    const getRecord = (): TodoInterface => {
+      if (props.modifyTaskId != -1) {
+        return {...store.state.todos.todoList[props.modifyTaskId]};
+      } else {
+        return {
+          taskId: -1,
+          name: '',
+          desc: '',
+          completionDate: getDateInStringFormat(new Date(), 5),
+          createDate: getDateInStringFormat(compDate.value as Date),
+          completed: false,
+          show: false,
+          status: StatusEnum.Todo,
+        };
+      }
+    };
+    const changeRecord = reactive<TodoInterface>(getRecord());
 
-    isStatusOperationAdd() {
-      return this.statusOper == StatusOperation.Add;
-    },
+    if (props.modifyTaskId != -1) {
+      isDisable.value = true;
+      statusOper.value = StatusOperation.Edit;
+      compDate.value = new Date(changeRecord.completionDate as string);
+    }
+
+    const onSubmit = () => {
+      //-- Edit -----
+      if (isDisable.value) {
+        if (changeRecord.status != StatusEnum.Done) {
+          isDisable.value = false;
+          statusOper.value = StatusOperation.Cancel;
+        } else {
+          showMessageWrongPeriod.value = true;
+        } //-- Cancel -----
+      } else if (statusOper.value == StatusOperation.Cancel) {
+        emit('cancel');
+      } else {
+        //-- Add/Edit new task -----
+        if (props.modifyTaskId != -1) {
+          store.dispatch('todos/AC_MODIFY_TODO', {id: props.modifyTaskId, task: {...changeRecord}});
+        } else {
+          let newId = store.state.todos.todoList.length;
+          while (store.state.todos.todoList.findIndex((t: TodoInterface) => t.taskId == newId) != -1) {
+            newId++;
+          }
+          changeRecord.taskId = newId;
+          store.commit('todos/ADD_TODO', changeRecord);
+        }
+        emit('save-task');
+        visible.value = false;
+        setTimeout(() => {
+          visible.value = true;
+        }, 3000);
+      }
+    };
+
+    const waitForChange = () => {
+      if (statusOper.value != StatusOperation.Add) {
+        const changeRec = watch(
+          changeRecord,
+          () => {
+            statusOper.value = StatusOperation.Save;
+            changeRec();
+          },
+          {deep: true},
+        );
+      }
+    };
+    onMounted(waitForChange);
+
+    watch(compDate, (newValue, oldValue) => {
+      changeRecord.completionDate = getDateInStringFormat(newValue as Date);
+    });
+
+    return {
+      compDate,
+      visible,
+      isDisable,
+      statusOper,
+      changeRecord,
+      showMessageWrongPeriod,
+      from,
+      inputFormat,
+      buttonCaption,
+      isStatusOperationAdd,
+      onSubmit,
+      getDateInStringFormat,
+    };
   },
 
-  watch: {
-    compDate(currVal, oldVal) {
-      this.changeRecord.completionDate = this.getDateInStringFormat(currVal);
-    },
+  components: {
+    datepicker: Datepicker,
+  },
+
+  emits: {
+    'save-task': null,
+    cancel: null,
   },
 });
 </script>

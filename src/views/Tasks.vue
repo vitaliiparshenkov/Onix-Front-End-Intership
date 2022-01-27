@@ -30,117 +30,68 @@ div(v-else)
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, onMounted, computed} from 'vue';
 import {StatusEnum} from '@/types/task.interface';
-import dateInStringFormat from '@/mixins/dateInStringFormat';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-import {mapState, mapMutations} from 'vuex';
+import {useStore} from 'vuex';
+import taskMethods from '../composables/taskMethods';
 
 export default defineComponent({
-  data() {
+  setup() {
+    const store = useStore();
+
+    const elList = ref([]);
+    const isOpenModal = ref(false);
+    const modifyTaskId = ref(-1);
+
+    const todoList = computed(() => {
+      return store.state.todos.todoList;
+    });
+
+    const {goByElem, removeClass, isTodoStatusDone} = taskMethods(elList);
+
+    const saveTask = () => {
+      setTimeout(removeClass, 3000, 'blink');
+      closeModalWindow();
+    };
+    const modifyTask = (taskId: number) => {
+      modifyTaskId.value = taskId;
+      isOpenModal.value = true;
+    };
+    const removeTask = (i: number) => {
+      store.commit('todos/REMOVE_TODO', i);
+    };
+    const closeModalWindow = () => {
+      isOpenModal.value = false;
+      if (modifyTaskId.value != -1) {
+        modifyTaskId.value = -1;
+      }
+    };
+
+    onMounted(() => {
+      removeClass('blink');
+      goByElem();
+    });
+
     return {
       StatusEnum,
-      elList: ref([]),
-      isOpenModal: false,
-      modifyTaskId: -1,
+      elList,
+      isOpenModal,
+      modifyTaskId,
+      isTodoStatusDone,
+      todoList,
+
+      saveTask,
+      modifyTask,
+      removeTask,
+      closeModalWindow,
     };
   },
 
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
-  },
-
-  props: [''],
-
-  mixins: [dateInStringFormat],
-
-  emits: {
-    // 'change-notifis': null,
-  },
-
-  methods: {
-    ...mapMutations('todos', ['removeTodo']),
-
-    modifyTask(taskId: number) {
-      this.modifyTaskId = taskId;
-      this.isOpenModal = true;
-    },
-
-    saveTask(): void {
-      setTimeout(this.removeClass, 3000, 'blink');
-      this.closeModalWindow();
-    },
-
-    removeTask(i: number): void {
-      this.removeTodo(i);
-    },
-
-    closeModalWindow() {
-      this.isOpenModal = false;
-      if (this.modifyTaskId != -1) {
-        this.modifyTaskId = -1;
-      }
-    },
-
-    goByElem() {
-      for (let i = 0; i < this.elList.length; i++) {
-        let el: HTMLElement = this.elList[i];
-        if (el) {
-          setTimeout(() => {
-            el.classList.add('scale');
-          }, i * 200);
-        }
-      }
-      setTimeout(this.removeClass, (this.elList.length - 1) * 500, 'scale');
-    },
-
-    removeClass(className: string) {
-      let el: HTMLElement;
-      for (let i = 0; i < this.elList.length; i++) {
-        el = this.elList[i];
-        if (el) {
-          el.classList.remove(className);
-        }
-      }
-    },
-
-    isTodoStatusDone(status: StatusEnum): boolean {
-      if (status === StatusEnum.Done) {
-        return true;
-      } else {
-        return false;
-      }
-    },
-  },
-
-  mounted() {
-    this.removeClass('blink');
-    this.goByElem();
-  },
-
-  computed: {
-    //--- 0 variant
-    ...mapState('todos', {todoList: 'todoList'}),
-
-    //--- 1 variant
-    // ...mapState({globalTodoList: 'todoList'}),
-
-    //--- 2 variant
-    // ...mapState(['todoList']),
-
-    //--- 3 variant
-    // ...mapState({
-    //   todoList(state: any): any {
-    //     return state.todoList;
-    //   },
-    // }),
-
-    //--- 4 variant
-    // todoList(): any {
-    //   return this.$store.state.todoList;
-    // },
   },
 });
 </script>

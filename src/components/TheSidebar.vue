@@ -62,57 +62,48 @@ aside
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
+import {defineComponent, computed, ref} from 'vue';
+import {useStore} from 'vuex';
+import theSidebarMethods from '../composables/theSidebarMethods';
 import {CurrentUserInterface} from '@/types/user.interface.ts';
-import {mapState} from 'vuex';
 
 export default defineComponent({
-  data() {
-    return {
-      completedTasks: 107,
-      openTasks: 3,
-      currentUser: {
-        name: 'Jean Gonzales',
-        position: 'Product Owner',
-        avatar: require('@/assets/foto_1.jpg'),
-      } as CurrentUserInterface,
-      showStats: false,
-      showBurgerMenu: false,
-    };
-  },
   name: 'sidebar',
-  props: [''],
-  emits: {lockWrapper: null},
-  methods: {
-    changeCompletedTasks() {
-      if (confirm('Are you sure you want to change the number of tasks?')) {
-        if (this.openTasks > 0) {
-          this.completedTasks++;
-          this.openTasks--;
-        } else {
-          alert("Sorry, but you were carried away by your work and did not see that you don't have open projects.");
-        }
-      }
-    },
-    goTaskPage() {
-      if (this.openTasks > 0) {
-        this.$router.push({name: 'tasks'});
-      }
-    },
-    showStatistic() {
-      this.showStats = !this.showStats;
-      this.$emit('lockWrapper', this.showStats);
-    },
-    showBurger() {
-      if (this.showStats) {
-        this.showStats = !this.showStats;
-      }
-      this.showBurgerMenu = !this.showBurgerMenu;
-    },
-  },
 
-  computed: {
-    ...mapState(['notificationsCount']),
+  setup() {
+    const store = useStore();
+
+    const currentUser: CurrentUserInterface = {
+      name: 'Jean Gonzales',
+      position: 'Product Owner',
+      avatar: require('@/assets/foto_1.jpg'),
+    };
+    const showStats = ref(false);
+    const showBurgerMenu = ref(false);
+
+    const notificationsCount = computed(() => {
+      return store.state.notificationsCount;
+    });
+    const completedTasks = computed(() => {
+      return store.getters['todos/getCountDones'];
+    });
+    const openTasks = computed(() => {
+      return store.getters['todos/getCountOpenTasks'];
+    });
+
+    const {showBurger, showStatistic, goTaskPage} = theSidebarMethods(showStats, showBurgerMenu);
+
+    return {
+      notificationsCount,
+      completedTasks,
+      currentUser,
+      openTasks,
+      showStats,
+      showBurgerMenu,
+      showBurger,
+      showStatistic,
+      goTaskPage,
+    };
   },
 });
 </script>

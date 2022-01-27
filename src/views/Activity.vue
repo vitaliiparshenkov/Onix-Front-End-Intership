@@ -16,32 +16,27 @@ p.day today
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import {mapState, mapMutations} from 'vuex';
+import {defineComponent, computed} from 'vue';
+import {useStore} from 'vuex';
 
 export default defineComponent({
-  data() {
-    return {};
+  setup() {
+    const store = useStore();
+
+    let MessageList = computed(() => {
+      return store.state.messages.MessageList;
+    });
+
+    function changeNotofis(param: number) {
+      store.commit('modifyNotofis', param);
+    }
+
+    return {
+      MessageList,
+      changeNotofis,
+    };
   },
 
   name: 'activity',
-
-  props: [''],
-
-  emits: {
-    // 'change-notifis': null,
-  },
-
-  methods: {
-    ...mapMutations({changeNotofis: 'modifyNotofis'}),
-  },
-
-  computed: {
-    ...mapState({
-      MessageList(state: any): any {
-        return state.messages.MessageList;
-      },
-    }),
-  },
 });
 </script>

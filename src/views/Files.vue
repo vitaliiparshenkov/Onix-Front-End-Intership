@@ -7,31 +7,22 @@ ul.list
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue';
-import {mapState, mapGetters} from 'vuex';
+import {defineComponent, computed} from 'vue';
+import {useStore} from 'vuex';
 
 export default defineComponent({
-  data() {
-    return {};
+  setup() {
+    const store = useStore();
+    const imageList = computed(() => {
+      return store.getters['messages/getImageList'];
+    });
+
+    return {
+      imageList,
+    };
   },
 
   name: 'files',
-
-  emits: {},
-
-  components: {},
-
-  methods: {},
-
-  computed: {
-    ...mapState({
-      MessageList(state: any): any {
-        return state.messages.MessageList;
-      },
-    }),
-
-    ...mapGetters('messages', {imageList: 'getImageList'}),
-  },
 });
 </script>
 
