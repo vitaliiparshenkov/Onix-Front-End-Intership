@@ -20,44 +20,43 @@ form#search(@submit.prevent="onSubmitSearch")
   div(v-for="status in StatusEnum" :class="status" @dragover.prevent @dragenter="dragEnter" @dragleave="dragLeave" @drop="dragDrop")
     h2.header-box {{status}}
       p.header-box-count -&nbsp;{{getCountTodoStatus(status)}}&nbsp;-
-    .task-box(v-for="(todo, todoId) of getTodoType(status)" :key="todo" :class="getClassDependentOn(status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_' + todoList.indexOf(todo)")
+    .task-box(v-for="todo of getTodoType(status)" :key="todo" :class="getClassDependentOn(status)" draggable="true" @dragstart="dragStart" @dragend="dragEnd" :id="'todoId_'+todo.taskId")
       i.status.fas(:class="getClassStatus(todo.completionDate)" v-if="status != StatusEnum.Done")
       i.status.far.fa-calendar-check(v-else)
       p.name {{ todo.name }}
       strong
         <!--time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate.toString().substr(4, 11) }}-->
         time(datetime="2010-07-26T23:42+03:00") {{ todo.completionDate }}
-      i.modify.fas.fa-pen(@click="modifyTask(todoList.indexOf(todo))" v-if="status != StatusEnum.Done")
+      i.modify.fas.fa-pen(@click="modifyTask(todo.taskId)" v-if="status != StatusEnum.Done")
 
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, watchEffect, computed} from 'vue';
+import {defineComponent, ref, watchEffect} from 'vue';
 import {StatusEnum} from '@/types/task.interface';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
 import Datepicker from 'vue3-date-time-picker';
 import 'vue3-date-time-picker/dist/main.css';
-import {useStore} from 'vuex';
-import kanbanDragDrop from '../composables/kanbanDragDrop';
-import kanbanMethods from '../composables/kanbanMethods';
+import kanbanDragDrop from '@/composables/kanbanDragDrop';
+import kanbanMethods from '@/composables/kanbanMethods';
+import modifyTodo from '@/composables/modifyTodo.ts';
 
 export default defineComponent({
   setup() {
-    const store = useStore();
-
     let todoId = -1;
     const date = ref([]);
     const search = ref('');
     const isOpenModal = ref(false);
     const serchDateBoxHide = ref(true);
     const modifyTaskId = ref(-1);
+    // let todoList = ref<TodoInterface[]>([]);
 
-    const todoList = computed(() => {
-      return store.state.todos.todoList;
-    });
+    const {todoList, getList, saveTask, closeModalWindow, modifyTask} = modifyTodo(modifyTaskId, isOpenModal);
 
-    const {dragStart, dragEnd, dragDrop} = kanbanDragDrop(todoId);
+    getList();
+
+    const {dragStart, dragEnd, dragDrop} = kanbanDragDrop(todoId, todoList, getList);
     const {
       onSubmitSearch,
       format,
@@ -67,19 +66,7 @@ export default defineComponent({
       getClassStatus,
       getTodoType,
       getCountTodoStatus,
-    } = kanbanMethods(date, search, serchDateBoxHide);
-
-    const saveTask = (): void => {
-      closeModalWindow();
-    };
-    const modifyTask = (taskId: number) => {
-      modifyTaskId.value = taskId;
-      isOpenModal.value = true;
-    };
-    const closeModalWindow = () => {
-      isOpenModal.value = false;
-      modifyTaskId.value = -1;
-    };
+    } = kanbanMethods(date, search, serchDateBoxHide, todoList);
 
     watchEffect(() => {
       if (date.value === null) {

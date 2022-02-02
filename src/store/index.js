@@ -25,6 +25,5 @@ export default createStore({
         messages: messagesStore,
         todos: todosStore,
     },
-    plugins: [vuexLocal.plugin],
 });
 //# sourceMappingURL=index.js.map

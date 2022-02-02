@@ -3,6 +3,7 @@ export default function taskMethods(elList) {
     const goByElem = () => {
         for (let i = 0; i < elList.value.length; i++) {
             const el = elList.value[i];
+            // console.log(i + ' - ' +el);
             if (el) {
                 setTimeout(() => {
                     el.classList.add('scale');
@@ -15,6 +16,7 @@ export default function taskMethods(elList) {
         let el;
         for (let i = 0; i < elList.value.length; i++) {
             el = elList.value[i];
+            // console.log(i+i + ' - ' +el);
             if (el) {
                 el.classList.remove(className);
             }

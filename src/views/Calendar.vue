@@ -1,37 +1,52 @@
 <template lang="pug">
+modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
+  template(v-slot:body)
+    add-edit-task(@cancel="closeModalWindow" :modify-task-id="modifyTaskId" :parent-comp="nameComponent")
+
 h1 Event Calendar
-Calendar(:attributes="attributes()" title-position="left" is-expanded)
+Calendar(:attributes="attributes()" title-position="left" is-expanded class="custom-calendar max-w-full")
+  template(#day-popover="{ day, dayTitle, attributes }")
+    ul
+      li(v-for="{key, customData} in attributes" :key="customData.taskId" class="todoItem" @click.prevent="showDetails(customData.taskId)")
+        a(class="todoLink") {{ customData.name }}
 
 </template>
 
 <script lang="ts">
-import {defineComponent, computed} from 'vue';
+import {defineComponent, ref} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
-import {Calendar, DatePicker} from 'v-calendar';
-import {useStore} from 'vuex';
+import {Calendar} from 'v-calendar';
+import ModalWindow from '@/components/ModalWindow.vue';
+import AddEditTask from '@/components/AddEditTask.vue';
+import modifyTodo from '@/composables/modifyTodo.ts';
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const isOpenModal = ref(false);
+    const modifyTaskId = ref(-1);
+    const nameComponent = 'calendar';
 
-    let todoList = computed(() => {
-      return store.state.todos.todoList;
-    });
+    const {
+      todoList,
+      getList,
+      // removeTask,
+      // saveTask,
+      closeModalWindow,
+      modifyTask: showDetails,
+    } = modifyTodo(modifyTaskId, isOpenModal);
+
+    getList();
+
+    // const {modifyTask: showDetails} = _modifyTask(modifyTaskId, isOpenModal);
+    // const {closeModalWindow} = _closeModal(modifyTaskId, isOpenModal);
 
     const attributes = () => {
       return [
         ...todoList.value.map((todo: TodoInterface) => ({
           dates: todo.createDate,
           dot: false,
-          popover: {
-            label: todo.name,
-            visibility: 'click',
-            // hideIndicator: true,
-            style: {
-              backgroundColor: 'red',
-            },
-          },
-          // customData: todo,
+          customData: todo,
+          popover: true,
           highlight: {
             color: 'indigo',
             fillMode: 'solid',
@@ -45,6 +60,11 @@ export default defineComponent({
 
     return {
       attributes,
+      showDetails,
+      isOpenModal,
+      modifyTaskId,
+      closeModalWindow,
+      nameComponent,
     };
   },
 
@@ -52,12 +72,32 @@ export default defineComponent({
 
   components: {
     Calendar,
-    DatePicker,
+    'add-edit-task': AddEditTask,
+    'modal-window': ModalWindow,
   },
 });
 </script>
 
 <style lang="scss" scoped>
+.todoItem {
+  padding: 5px;
+  margin: 3px 0;
+  background-color: #ed64a6;
+  border-radius: 3px;
+
+  .todoLink {
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.lock {
+  overflow: hidden;
+  position: fixed;
+}
+
 h1 {
   border-bottom: 1px solid #cccccc;
   margin-bottom: 20px;

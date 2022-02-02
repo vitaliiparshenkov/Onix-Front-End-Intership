@@ -85,10 +85,12 @@ export default defineComponent({
       return store.state.notificationsCount;
     });
     const completedTasks = computed(() => {
-      return store.getters['todos/getCountDones'];
+      // return store.getters['todos/getCountDones'];
+      return store.state.todos.completedTask;
     });
     const openTasks = computed(() => {
-      return store.getters['todos/getCountOpenTasks'];
+      // return store.getters['todos/getCountOpenTasks'];
+      return store.state.todos.openTask;
     });
 
     const {showBurger, showStatistic, goTaskPage} = theSidebarMethods(showStats, showBurgerMenu);
