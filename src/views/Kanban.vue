@@ -47,12 +47,9 @@ export default defineComponent({
     let todoId = -1;
     const date = ref([]);
     const search = ref('');
-    const isOpenModal = ref(false);
     const serchDateBoxHide = ref(true);
-    const modifyTaskId = ref(-1);
-    // let todoList = ref<TodoInterface[]>([]);
 
-    const {todoList, getList, saveTask, closeModalWindow, modifyTask} = modifyTodo(modifyTaskId, isOpenModal);
+    const {todoList, getList, saveTask, closeModalWindow, modifyTask, modifyTaskId, isOpenModal} = modifyTodo();
 
     getList();
 

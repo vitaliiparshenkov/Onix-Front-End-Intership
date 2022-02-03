@@ -1,4 +1,5 @@
 <template lang="pug">
+
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
     add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId")
@@ -9,6 +10,8 @@ div.task-header-container
     i.fas.fa-plus
 hr
 transition-group(tag="ul" name="list-complete" v-if="todoList.length")
+  loader(v-show="showLoader")
+    template(v-slot:operation) {{operation}}
   li(v-for="(task, taskId) of todoList" :key="task" class="blink- list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
       span.task(:class="{done: isTodoStatusDone(task.status)}" @click.prevent="modifyTask(task.taskId)")
@@ -33,6 +36,7 @@ div(v-else)
 import {defineComponent, ref, onMounted} from 'vue';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
+import Loader from '@/components/PageLoader.vue';
 import taskMethods from '@/composables/taskMethods';
 import {StatusEnum} from '@/types/task.interface';
 import modifyTodo from '@/composables/modifyTodo.ts';
@@ -40,13 +44,22 @@ import modifyTodo from '@/composables/modifyTodo.ts';
 export default defineComponent({
   setup() {
     const elList = ref([]);
-    const isOpenModal = ref(false);
-    const modifyTaskId = ref(-1);
+    // const isOpenModal = ref(false);
+    // const modifyTaskId = ref(-1);
+    // const showLoader = ref(true);
 
-    const {todoList, getList, removeTask, saveTask, closeModalWindow, modifyTask} = modifyTodo(
+    const {
+      todoList,
+      getList,
+      removeTask,
+      saveTask,
+      closeModalWindow,
+      modifyTask,
+      showLoader,
       modifyTaskId,
       isOpenModal,
-    );
+      operation,
+    } = modifyTodo();
 
     getList();
 
@@ -68,17 +81,20 @@ export default defineComponent({
       modifyTaskId,
       isTodoStatusDone,
       todoList,
+      showLoader,
 
       saveTask,
       modifyTask,
       removeTask,
       closeModalWindow,
+      operation,
     };
   },
 
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
+    loader: Loader,
   },
 });
 </script>

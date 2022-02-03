@@ -1,5 +1,7 @@
 <template lang="pug">
 form(@submit.prevent="onSubmit")
+  loader(v-show="showLoader")
+    template(v-slot:operation) {{operation}}
   fieldset
     legend &nbsp;Form for add/edit a new task&nbsp;
     label(for="todoName") Name
@@ -33,8 +35,19 @@ import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface
 import Datepicker from 'vue3-datepicker';
 import getDateInStringFormat from '../composables/getDateInStringFormat';
 import {useStore} from 'vuex';
+import Loader from '@/components/PageLoader.vue';
 
 export default defineComponent({
+  components: {
+    datepicker: Datepicker,
+    loader: Loader,
+  },
+
+  emits: {
+    'save-task': null,
+    cancel: null,
+  },
+
   props: ['modifyTaskId', 'parentComp'],
 
   setup(props, {emit}) {
@@ -46,6 +59,8 @@ export default defineComponent({
     const showMessageWrongPeriod = ref(false);
     const from = new Date();
     const inputFormat = 'MM/dd/yyyy';
+    const showLoader = ref(false);
+    const operation = ref('');
 
     const buttonCaption = computed(() => {
       switch (statusOper.value) {
@@ -78,10 +93,13 @@ export default defineComponent({
     });
 
     if (props.modifyTaskId != -1) {
+      showLoader.value = true;
+      operation.value = 'LOADING DATA...';
       store.dispatch('todos/AC_GET_TASK_BY_ID', {params: {id: props.modifyTaskId}}).then((result) => {
         if (result) {
           changeRecord.value = {...result};
           waitForChange();
+          showLoader.value = false;
         }
       });
     }
@@ -106,9 +124,13 @@ export default defineComponent({
       } else {
         //-- Add/Edit new task -----
         if (props.modifyTaskId != -1) {
+          showLoader.value = true;
+          // provide('operation', 'MODIFYING TASK...');
+          operation.value = 'MODIFYING TASK...';
           store
             .dispatch('todos/AC_MODIFY_TODO', {id: props.modifyTaskId, task: {...changeRecord.value}})
             .then(() => {
+              showLoader.value = false;
               emit('save-task');
             })
             .catch((error) => {
@@ -117,9 +139,13 @@ export default defineComponent({
               }
             });
         } else {
+          showLoader.value = true;
+          operation.value = 'ADDING TASK...';
+          // provide('operation', 'ADDING TASK...');
           store
             .dispatch('todos/AC_ADD_TODO', {...changeRecord.value})
             .then(() => {
+              showLoader.value = false;
               emit('save-task');
             })
             .catch((error) => {
@@ -167,16 +193,9 @@ export default defineComponent({
       onSubmit,
       getDateInStringFormat,
       isShowButt,
+      showLoader,
+      operation
     };
-  },
-
-  components: {
-    datepicker: Datepicker,
-  },
-
-  emits: {
-    'save-task': null,
-    cancel: null,
   },
 });
 </script>

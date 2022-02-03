@@ -13,7 +13,7 @@ Calendar(:attributes="attributes()" title-position="left" is-expanded class="cus
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue';
+import {defineComponent} from 'vue';
 import {TodoInterface} from '@/types/task.interface';
 import {Calendar} from 'v-calendar';
 import ModalWindow from '@/components/ModalWindow.vue';
@@ -22,18 +22,20 @@ import modifyTodo from '@/composables/modifyTodo.ts';
 
 export default defineComponent({
   setup() {
-    const isOpenModal = ref(false);
-    const modifyTaskId = ref(-1);
+    // const isOpenModal = ref(false);
+    // const modifyTaskId = ref(-1);
     const nameComponent = 'calendar';
 
     const {
       todoList,
       getList,
+      modifyTaskId,
+      isOpenModal,
       // removeTask,
       // saveTask,
       closeModalWindow,
       modifyTask: showDetails,
-    } = modifyTodo(modifyTaskId, isOpenModal);
+    } = modifyTodo();
 
     getList();
 

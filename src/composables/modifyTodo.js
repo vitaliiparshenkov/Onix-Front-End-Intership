@@ -1,14 +1,22 @@
-import { ref } from 'vue';
+import { ref, provide } from 'vue';
 import { useStore } from 'vuex';
-export default function modifyTodo(modifyTaskId, isOpenModal) {
+export default function modifyTodo() {
     const todoList = ref([]);
+    const showLoader = ref(false);
     const store = useStore();
+    const isOpenModal = ref(false);
+    const modifyTaskId = ref(-1);
+    const operation = ref('');
+    provide('operation', operation);
     const getList = () => {
+        operation.value = 'LOADING DATA...';
+        showLoader.value = true;
         return store
             .dispatch('todos/AC_GET_TASKS')
             .then((result) => {
             if (result) {
                 todoList.value = result;
+                showLoader.value = false;
             }
         })
             .catch((error) => {
@@ -16,11 +24,14 @@ export default function modifyTodo(modifyTaskId, isOpenModal) {
         });
     };
     const removeTask = (i) => {
+        operation.value = 'DELETING TASK...';
+        showLoader.value = true;
         store
             .dispatch('todos/AC_DELETE_TASKS', i)
             .then((result) => {
             if (result) {
                 todoList.value = result.tasksList;
+                showLoader.value = false;
             }
             // getList();
         })
@@ -48,6 +59,10 @@ export default function modifyTodo(modifyTaskId, isOpenModal) {
         saveTask,
         modifyTask,
         closeModalWindow,
+        showLoader,
+        modifyTaskId,
+        isOpenModal,
+        operation,
     };
 }
 //# sourceMappingURL=modifyTodo.js.map
