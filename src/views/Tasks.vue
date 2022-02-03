@@ -1,4 +1,5 @@
 <template lang="pug">
+
 modal-window(@closeModalWindow="closeModalWindow" :is-open="isOpenModal" :class="{lock: isOpenModal}")
   template(v-slot:body)
     add-edit-task(@save-task="saveTask" @cancel="closeModalWindow" :modify-task-id="modifyTaskId")
@@ -9,9 +10,11 @@ div.task-header-container
     i.fas.fa-plus
 hr
 transition-group(tag="ul" name="list-complete" v-if="todoList.length")
-  li(v-for="(task, taskId) of todoList" :key="task" class="blink list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
+  loader(v-show="showLoader")
+    template(v-slot:operation) {{operation}}
+  li(v-for="(task, taskId) of todoList" :key="task" class="blink- list-complete-item" :ref="el => { if (el) elList[taskId] = el }")
     .li
-      span.task(:class="{done: isTodoStatusDone(task.status)}" @click.prevent="modifyTask(taskId)")
+      span.task(:class="{done: isTodoStatusDone(task.status)}" @click.prevent="modifyTask(task.taskId)")
         input(type="checkbox" @change="task.completed = !task.completed" :id="`task-${taskId}`" :checked="isTodoStatusDone(task.status)")
         label(:for="`task-${taskId}`")
           strong() {{ task.name }}&ensp;
@@ -21,7 +24,7 @@ transition-group(tag="ul" name="list-complete" v-if="todoList.length")
           i(v-else="task.status === StatusEnum.Done") &ensp;:Done
       span.panel
         button.watch(@click="task.show = !task.show") &#128269;
-        button.delete(@click="removeTask(taskId)") &times;
+        button.delete(@click="removeTask(task.taskId)") &times;
     div(:class="['desc', {completed: isTodoStatusDone(task.status)}]" v-show="task.show")
       |{{ task.desc }}
 div(v-else)
@@ -30,48 +33,45 @@ div(v-else)
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, onMounted, computed} from 'vue';
-import {StatusEnum} from '@/types/task.interface';
+import {defineComponent, ref, onMounted} from 'vue';
 import AddEditTask from '@/components/AddEditTask.vue';
 import ModalWindow from '@/components/ModalWindow.vue';
-import {useStore} from 'vuex';
-import taskMethods from '../composables/taskMethods';
+import Loader from '@/components/PageLoader.vue';
+import taskMethods from '@/composables/taskMethods';
+import {StatusEnum} from '@/types/task.interface';
+import modifyTodo from '@/composables/modifyTodo.ts';
 
 export default defineComponent({
   setup() {
-    const store = useStore();
-
     const elList = ref([]);
-    const isOpenModal = ref(false);
-    const modifyTaskId = ref(-1);
+    // const isOpenModal = ref(false);
+    // const modifyTaskId = ref(-1);
+    // const showLoader = ref(true);
 
-    const todoList = computed(() => {
-      return store.state.todos.todoList;
-    });
+    const {
+      todoList,
+      getList,
+      removeTask,
+      saveTask,
+      closeModalWindow,
+      modifyTask,
+      showLoader,
+      modifyTaskId,
+      isOpenModal,
+      operation,
+    } = modifyTodo();
 
-    const {goByElem, removeClass, isTodoStatusDone} = taskMethods(elList);
+    getList();
 
-    const saveTask = () => {
-      setTimeout(removeClass, 3000, 'blink');
-      closeModalWindow();
-    };
-    const modifyTask = (taskId: number) => {
-      modifyTaskId.value = taskId;
-      isOpenModal.value = true;
-    };
-    const removeTask = (i: number) => {
-      store.commit('todos/REMOVE_TODO', i);
-    };
-    const closeModalWindow = () => {
-      isOpenModal.value = false;
-      if (modifyTaskId.value != -1) {
-        modifyTaskId.value = -1;
-      }
-    };
+    const {
+      // goByElem,
+      // removeClass,
+      isTodoStatusDone,
+    } = taskMethods(elList);
 
     onMounted(() => {
-      removeClass('blink');
-      goByElem();
+      // removeClass('blink');
+      // goByElem();
     });
 
     return {
@@ -81,17 +81,20 @@ export default defineComponent({
       modifyTaskId,
       isTodoStatusDone,
       todoList,
+      showLoader,
 
       saveTask,
       modifyTask,
       removeTask,
       closeModalWindow,
+      operation,
     };
   },
 
   components: {
     'add-edit-task': AddEditTask,
     'modal-window': ModalWindow,
+    loader: Loader,
   },
 });
 </script>

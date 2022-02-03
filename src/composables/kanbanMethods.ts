@@ -1,22 +1,17 @@
-import {useStore} from 'vuex';
 import {TodoInterface, StatusEnum} from '@/types/task.interface';
 import getDateInStringFormat from '../composables/getDateInStringFormat';
 
-export default function kanbanMethods(date: any, search: any, serchDateBoxHide: any): any {
-  const store = useStore();
-
+export default function kanbanMethods(date: any, search: any, serchDateBoxHide: any, todoList: any): any {
   const onSubmitSearch = () => {
     if (date.value.length != 0) {
-      return store.state.todos.todoList.filter(
+      return todoList.value.filter(
         (el: TodoInterface) =>
           el.name.toLowerCase().includes(search.value.toLowerCase()) &&
           new Date(el.completionDate) >= new Date(getDateInStringFormat(date.value[0])) &&
           new Date(el.completionDate) <= new Date(getDateInStringFormat(date.value[1])),
       );
     } else {
-      return store.state.todos.todoList.filter((el: TodoInterface) =>
-        el.name.toLowerCase().includes(search.value.toLowerCase()),
-      );
+      return todoList.value.filter((el: TodoInterface) => el.name.toLowerCase().includes(search.value.toLowerCase()));
     }
   };
   const format = (date: any) => {
@@ -66,7 +61,7 @@ export default function kanbanMethods(date: any, search: any, serchDateBoxHide: 
     return onSubmitSearch().filter((el: TodoInterface) => el.status === status);
   };
   const getCountTodoStatus = (status: string) => {
-    return store.state.todos.todoList.filter((el: TodoInterface) => el.status === status).length;
+    return todoList.value.filter((el: TodoInterface) => el.status === status).length;
   };
 
   return {

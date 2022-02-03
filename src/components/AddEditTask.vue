@@ -1,5 +1,7 @@
 <template lang="pug">
 form(@submit.prevent="onSubmit")
+  loader(v-show="showLoader")
+    template(v-slot:operation) {{operation}}
   fieldset
     legend &nbsp;Form for add/edit a new task&nbsp;
     label(for="todoName") Name
@@ -23,30 +25,42 @@ form(@submit.prevent="onSubmit")
         label(for="date") Complete&nbsp;date
           em *
         datepicker.date-class(id="date" v-model="compDate" :lowerLimit="from" readonly :disabled="isDisable" :inputFormat="inputFormat" startingView="day")
-    button(type="submit" :class="{hidden: !visible}") {{buttonCaption}}
+    button(v-show="isShowButt" type="submit") {{buttonCaption}}
     p.wrong(v-show="showMessageWrongPeriod") Completed tasks cannot be edited
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, computed, watch, onMounted, reactive} from 'vue';
+import {defineComponent, ref, computed, watch} from 'vue';
 import {TodoInterface, StatusEnum, StatusOperation} from '@/types/task.interface';
 import Datepicker from 'vue3-datepicker';
 import getDateInStringFormat from '../composables/getDateInStringFormat';
 import {useStore} from 'vuex';
+import Loader from '@/components/PageLoader.vue';
 
 export default defineComponent({
-  props: ['modifyTaskId'],
+  components: {
+    datepicker: Datepicker,
+    loader: Loader,
+  },
+
+  emits: {
+    'save-task': null,
+    cancel: null,
+  },
+
+  props: ['modifyTaskId', 'parentComp'],
 
   setup(props, {emit}) {
     const store = useStore();
-
     const compDate = ref(new Date());
-    const visible = ref(true); // {value: true}
     const isDisable = ref(false);
+    const isShowButt = props.parentComp != 'calendar' ? true : false;
     const statusOper = ref<StatusOperation>(StatusOperation.Add);
     const showMessageWrongPeriod = ref(false);
     const from = new Date();
     const inputFormat = 'MM/dd/yyyy';
+    const showLoader = ref(false);
+    const operation = ref('');
 
     const buttonCaption = computed(() => {
       switch (statusOper.value) {
@@ -66,34 +80,40 @@ export default defineComponent({
     const isStatusOperationAdd = computed(() => {
       return statusOper.value == StatusOperation.Add;
     });
-    const getRecord = (): TodoInterface => {
-      if (props.modifyTaskId != -1) {
-        return {...store.state.todos.todoList[props.modifyTaskId]};
-      } else {
-        return {
-          taskId: -1,
-          name: '',
-          desc: '',
-          completionDate: getDateInStringFormat(new Date(), 5),
-          createDate: getDateInStringFormat(compDate.value as Date),
-          completed: false,
-          show: false,
-          status: StatusEnum.Todo,
-        };
-      }
-    };
-    const changeRecord = reactive<TodoInterface>(getRecord());
+
+    let changeRecord = ref<TodoInterface>({
+      taskId: Math.floor(Math.random() * 1000),
+      name: '',
+      desc: '',
+      completionDate: getDateInStringFormat(new Date(), 5),
+      createDate: getDateInStringFormat(compDate.value as Date),
+      completed: false,
+      show: false,
+      status: StatusEnum.Todo,
+    });
+
+    if (props.modifyTaskId != -1) {
+      showLoader.value = true;
+      operation.value = 'LOADING DATA...';
+      store.dispatch('todos/AC_GET_TASK_BY_ID', {params: {id: props.modifyTaskId}}).then((result) => {
+        if (result) {
+          changeRecord.value = {...result};
+          waitForChange();
+          showLoader.value = false;
+        }
+      });
+    }
 
     if (props.modifyTaskId != -1) {
       isDisable.value = true;
       statusOper.value = StatusOperation.Edit;
-      compDate.value = new Date(changeRecord.completionDate as string);
+      compDate.value = new Date(changeRecord.value.completionDate as string);
     }
 
     const onSubmit = () => {
       //-- Edit -----
       if (isDisable.value) {
-        if (changeRecord.status != StatusEnum.Done) {
+        if (changeRecord.value.status != StatusEnum.Done) {
           isDisable.value = false;
           statusOper.value = StatusOperation.Cancel;
         } else {
@@ -104,21 +124,42 @@ export default defineComponent({
       } else {
         //-- Add/Edit new task -----
         if (props.modifyTaskId != -1) {
-          store.dispatch('todos/AC_MODIFY_TODO', {id: props.modifyTaskId, task: {...changeRecord}});
+          showLoader.value = true;
+          // provide('operation', 'MODIFYING TASK...');
+          operation.value = 'MODIFYING TASK...';
+          store
+            .dispatch('todos/AC_MODIFY_TODO', {id: props.modifyTaskId, task: {...changeRecord.value}})
+            .then(() => {
+              showLoader.value = false;
+              emit('save-task');
+            })
+            .catch((error) => {
+              if (error) {
+                errorHandler(error);
+              }
+            });
         } else {
-          let newId = store.state.todos.todoList.length;
-          while (store.state.todos.todoList.findIndex((t: TodoInterface) => t.taskId == newId) != -1) {
-            newId++;
-          }
-          changeRecord.taskId = newId;
-          store.commit('todos/ADD_TODO', changeRecord);
+          showLoader.value = true;
+          operation.value = 'ADDING TASK...';
+          // provide('operation', 'ADDING TASK...');
+          store
+            .dispatch('todos/AC_ADD_TODO', {...changeRecord.value})
+            .then(() => {
+              showLoader.value = false;
+              emit('save-task');
+            })
+            .catch((error) => {
+              if (error) {
+                errorHandler(error);
+              }
+            });
         }
-        emit('save-task');
-        visible.value = false;
-        setTimeout(() => {
-          visible.value = true;
-        }, 3000);
       }
+    };
+
+    const errorHandler = (error: any) => {
+      alert('Error\nOperation was rejected(modalWindow) !!! \n' + error);
+      emit('cancel');
     };
 
     const waitForChange = () => {
@@ -133,15 +174,14 @@ export default defineComponent({
         );
       }
     };
-    onMounted(waitForChange);
+    // onMounted(waitForChange);
 
-    watch(compDate, (newValue, oldValue) => {
-      changeRecord.completionDate = getDateInStringFormat(newValue as Date);
+    watch(compDate, (newValue) => {
+      changeRecord.value.completionDate = getDateInStringFormat(newValue as Date);
     });
 
     return {
       compDate,
-      visible,
       isDisable,
       statusOper,
       changeRecord,
@@ -152,16 +192,10 @@ export default defineComponent({
       isStatusOperationAdd,
       onSubmit,
       getDateInStringFormat,
+      isShowButt,
+      showLoader,
+      operation
     };
-  },
-
-  components: {
-    datepicker: Datepicker,
-  },
-
-  emits: {
-    'save-task': null,
-    cancel: null,
   },
 });
 </script>

@@ -1,45 +1,90 @@
-<template>
-  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+<template lang="pug">
+.pre-loader
+  .wrap
+    .loading
+      .bounceball
+      <!--.text {{operation}}-->
+      .text
+        slot(name="operation")
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent, inject} from 'vue';
+export default defineComponent({
+  setup() {
+    const operation = inject('operation');
 
+    return {
+      operation,
+    };
+  },
+});
 </script>
 
-<style lang="css" scoped>
-  .lds-ring {
-    display: inline-block;
-    position: relative;
-    width: 80px;
-    height: 80px;
-  }
-  .lds-ring div {
-    box-sizing: border-box;
-    display: block;
+<style lang="scss" scoped>
+$width: 15px;
+$height: 15px;
+$bounce_height: 30px;
+
+.pre-loader {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #9b9b9b;
+  opacity: 0.92;
+  z-index: 1;
+}
+
+.wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  /*position: fixed;*/
+}
+
+.text {
+  color: #fbae17;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.bounceball {
+  position: relative;
+  display: inline-block;
+  height: 37px;
+  width: $width;
+  &:before {
     position: absolute;
-    width: 64px;
-    height: 64px;
-    margin: 8px;
-    border: 8px solid #fff;
+    content: '';
+    display: block;
+    top: 0;
+    width: $width;
+    height: $height;
     border-radius: 50%;
-    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: #fff transparent transparent transparent;
+    background-color: #fbae17;
+    transform-origin: 50%;
+    animation: bounce 500ms alternate infinite ease;
   }
-  .lds-ring div:nth-child(1) {
-    animation-delay: -0.45s;
+}
+
+@keyframes bounce {
+  0% {
+    top: $bounce_height;
+    height: 5px;
+    border-radius: 60px 60px 20px 20px;
+    transform: scaleX(2);
   }
-  .lds-ring div:nth-child(2) {
-    animation-delay: -0.3s;
+  35% {
+    height: $height;
+    border-radius: 50%;
+    transform: scaleX(1);
   }
-  .lds-ring div:nth-child(3) {
-    animation-delay: -0.15s;
+  100% {
+    top: 0;
   }
-  @keyframes lds-ring {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
+}
 </style>

@@ -33,5 +33,5 @@ export default createStore({
     todos: todosStore,
   },
 
-  plugins: [vuexLocal.plugin],
+  // plugins: [vuexLocal.plugin],
 });
