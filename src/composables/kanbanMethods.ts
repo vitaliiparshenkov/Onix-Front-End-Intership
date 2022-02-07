@@ -14,6 +14,7 @@ export default function kanbanMethods(date: any, search: any, serchDateBoxHide: 
       return todoList.value.filter((el: TodoInterface) => el.name.toLowerCase().includes(search.value.toLowerCase()));
     }
   };
+
   const format = (date: any) => {
     const dayStart = date[0].getDate() < 10 ? '0' + date[0].getDate() : date[0].getDate();
     const monthStart = date[0].getMonth() + 1 < 10 ? '0' + (date[0].getMonth() + 1) : date[0].getMonth() + 1;
@@ -25,15 +26,18 @@ export default function kanbanMethods(date: any, search: any, serchDateBoxHide: 
 
     return `${monthStart}/${dayStart}/${yearStart} - ${monthEnd}/${dayEnd}/${yearEnd}`;
   };
+
   const showDateString = () => {
     serchDateBoxHide.value = !serchDateBoxHide.value;
     if (serchDateBoxHide.value === true) {
       date.value = [];
     }
   };
+
   const onClearInputSearch = () => {
     search.value = '';
   };
+
   const getClassDependentOn = (status: StatusEnum): string => {
     switch (status) {
       case StatusEnum.Todo:
@@ -44,6 +48,7 @@ export default function kanbanMethods(date: any, search: any, serchDateBoxHide: 
         return 'do-ne';
     }
   };
+
   const getClassStatus = (date_: any): string => {
     const currentDate = Date.now();
     const completionDate = new Date(date_);
@@ -57,9 +62,11 @@ export default function kanbanMethods(date: any, search: any, serchDateBoxHide: 
       }
     }
   };
+
   const getTodoType = (status: string) => {
     return onSubmitSearch().filter((el: TodoInterface) => el.status === status);
   };
+
   const getCountTodoStatus = (status: string) => {
     return todoList.value.filter((el: TodoInterface) => el.status === status).length;
   };

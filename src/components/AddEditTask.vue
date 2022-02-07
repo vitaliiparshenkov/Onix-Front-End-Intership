@@ -174,7 +174,6 @@ export default defineComponent({
         );
       }
     };
-    // onMounted(waitForChange);
 
     watch(compDate, (newValue) => {
       changeRecord.value.completionDate = getDateInStringFormat(newValue as Date);
@@ -194,7 +193,7 @@ export default defineComponent({
       getDateInStringFormat,
       isShowButt,
       showLoader,
-      operation
+      operation,
     };
   },
 });
